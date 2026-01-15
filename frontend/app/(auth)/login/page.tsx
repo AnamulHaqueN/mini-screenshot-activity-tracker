@@ -5,33 +5,37 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoginInput, loginSchema } from "./schema";
+import { ZodError } from "zod";
+
+type FieldErrors = {
+  email?: string;
+  password?: string;
+};
 
 export default function LoginPage() {
-  // states
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState("");
-
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const { mutateAsync, isPending, isError, error } = useLogin();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
 
     try {
-      const validatedLoginData: LoginInput = loginSchema.parse({
-        email,
-        password,
+      const validatedData: LoginInput = loginSchema.parse({
+        email: formData.get("email"),
+        password: formData.get("password"),
       });
 
-      await mutateAsync({
-        email: validatedLoginData.email,
-        password: validatedLoginData.password,
-      });
-
+      await mutateAsync(validatedData);
       router.push("/");
-    } catch (error: any) {
-      setFieldErrors(error);
+    } catch (err) {
+      // need to upgrade
+      if (err instanceof ZodError) {
+        setFieldErrors(err.message as FieldErrors);
+      }
     }
   };
 
@@ -43,15 +47,16 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           {isError && (
-            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          {fieldErrors && (
-            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {fieldErrors}
+            <div
+              role="alert"
+              className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded"
+            >
+              {typeof error === "string"
+                ? error
+                : "Login failed. Please try again."}
             </div>
           )}
 
@@ -65,14 +70,15 @@ export default function LoginPage() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
               />
-              {/* {fieldErrors.email && (
-                <p className="text-red-600 text-sm mt-1">{fieldErrors.email}</p>
-              )} */}
+              {fieldErrors.email && (
+                <p id="email-error" className="text-red-600 text-sm mt-1">
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             <div>
@@ -84,16 +90,15 @@ export default function LoginPage() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
               />
-              {/* {fieldErrors.password && (
-                <p className="text-red-600 text-sm mt-1">
+              {fieldErrors.password && (
+                <p id="password-error" className="text-red-600 text-sm mt-1">
                   {fieldErrors.password}
                 </p>
-              )} */}
+              )}
             </div>
           </div>
 
@@ -101,7 +106,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? "Signing in..." : "Sign in"}
             </button>
