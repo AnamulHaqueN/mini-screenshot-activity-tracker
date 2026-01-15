@@ -1,13 +1,14 @@
-import { authService } from "@/services/authService";
+import { authService } from "@/services/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useMe = () =>
-  useQuery({
+export const useMe = () => {
+  return useQuery({
     queryKey: ["me"],
     queryFn: authService.me,
     retry: false,
     staleTime: 5 * 60 * 1000, // for 5 min no API call
   });
+};
 
 export const useLogin = () => {
   const qc = useQueryClient();
@@ -41,7 +42,7 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: authService.register,
-    retry: false,
+    // retry: false,
     // onSuccess: () => {
     //   qc.invalidateQueries({ queryKey: ["me"] }); // refetch API "me"
     // },

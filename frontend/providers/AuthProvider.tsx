@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { useMe, useLogin, useLogout, useRegister } from "@/hooks/useAuth";
+import { useMe, useLogin, useLogout, useRegister } from "@/queries/auth";
 import { ILogin, IRegister } from "@/types/auth";
 
 type AuthContextType = {
