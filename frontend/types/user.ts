@@ -10,12 +10,6 @@ export type User = {
   company: Company;
 };
 
-export interface CreteEmployee {
-  name: string;
-  email: string;
-  password: string;
-}
-
 export interface AdminDashboardResponse {
   data: User[];
 }
