@@ -1,14 +1,14 @@
 import { employeeService } from "@/services/employees";
 import { Employee } from "@/types/employee";
+import { ApiError } from "@/types/error";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { error } from "console";
 
 export const useEmployee = () => {
   return useQuery({
     queryKey: ["employee"],
     queryFn: employeeService.getEmployees,
     retry: false,
-    staleTime: 5000, // 5 ms no API call
+    staleTime: 5 * 60 * 1000, // for 5 min no API call
   });
 };
 
@@ -21,7 +21,7 @@ const useAddEmployee = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employee"] });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error(error.response?.data?.message || "Failed to Add employee");
     },
   });
@@ -36,7 +36,7 @@ const useUpdateEmployee = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employee"] });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error(
         error.response?.data?.message || "Failed to update employee"
       );
@@ -52,7 +52,7 @@ const useDeleteEmployee = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employee"] });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error(
         error.response?.data?.message || "Failed to delete Employee"
       );

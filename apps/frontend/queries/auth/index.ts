@@ -1,4 +1,5 @@
 import { authService } from "@/services/auth";
+import { ApiError } from "@/types/error";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useMe = () => {
@@ -19,7 +20,7 @@ export const useLogin = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["me"] }); // refetch API "me"
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error(error.response?.data?.message || "Login failed");
     },
   });
@@ -46,7 +47,7 @@ export const useRegister = () => {
     // onSuccess: () => {
     //   qc.invalidateQueries({ queryKey: ["me"] }); // refetch API "me"
     // },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error(error.response?.data?.message || "Registration failed");
     },
   });

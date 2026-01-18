@@ -1,16 +1,17 @@
 import api from "@/http/axios";
 import { ILogin, IRegister } from "@/types/auth";
+import { ApiErrorShape } from "@/types/error";
 import { User } from "@/types/user";
 
 export const authService = {
   async register(data: IRegister) {
     console.log(data);
-    const response = await api.post("/auth/register", data);
+    const response = await api.post<ApiErrorShape>("/auth/register", data);
     return response.data;
   },
 
   async login({ email, password }: ILogin) {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post<ApiErrorShape>("/auth/login", { email, password });
     return response.data;
   },
 
