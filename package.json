@@ -1,0 +1,20 @@
+{
+  "name": "ezy-activity",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo lint --parallel"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  }
+}
