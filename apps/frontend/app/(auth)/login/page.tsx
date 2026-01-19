@@ -17,8 +17,11 @@ export default function LoginPage() {
   const { mutateAsync, isPending, isError, error } = useLogin();
   const router = useRouter();
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
 
     try {
       const validatedData: LoginInput = loginSchema.parse({
@@ -45,7 +48,7 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        <form onSubmit={() => handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           {isError && (
             <div
               role="alert"

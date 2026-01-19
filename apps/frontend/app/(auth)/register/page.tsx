@@ -22,8 +22,11 @@ export default function Register() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const router = useRouter();
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
 
     try {
       const validateData: RegisterInput = registerSchema.parse({
@@ -51,10 +54,10 @@ export default function Register() {
             Create Company Account
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={() => handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+              {error.message}
             </div>
           )}
 
