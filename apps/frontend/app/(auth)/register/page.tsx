@@ -39,7 +39,7 @@ export default function Register() {
 
       await mutateAsync(validateData);
       router.push("/login");
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof ZodError) {
         setFieldErrors(err.message as FieldErrors);
       }
