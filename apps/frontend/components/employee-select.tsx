@@ -6,24 +6,26 @@ import { Search, UserPlus, Users, Activity } from "lucide-react";
 //import AddEmployeeModal from "../../components/admin/AddEmployeeModal";
 // import { addHours, format, parseISO } from "date-fns";
 import { Employee } from "@/types/employee";
-import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/employees";
+import { useDeleteEmployee, useEmployee } from "@/queries/employees";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { employeeService } from "@/services/employees";
 
 export default function AdminEmployeesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
 
-  const {data: employees = [], isPending, isError, error} = useEmployee()
-  const {data: searchedEmployees = [], isPending: isSearching} = useSearchEmployee(searchTerm);
-  
-  console.log(employees.length)
+  const {data: employees = [], isPending, isError, error} = useEmployee(searchTerm)
 
-  const isLoading = false; // isPending || isSearching;
+  const isLoading = isPending;
   
+  const handleSearch =  (e: React.FormEvent) => {
+    e.preventDefault();
+  }
 
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  }
 //   const handleViewEmployee = (employeeId: number) => {
 //     navigate(`/admin/employees/${employeeId}/screenshots`);
 //   };
@@ -45,7 +47,7 @@ export default function AdminEmployeesPage() {
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <form onSubmit={() => {}} className="flex-1 max-w-md flex gap-2">
+          <form onSubmit={handleSearch} className="flex-1 max-w-md flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -65,7 +67,7 @@ export default function AdminEmployeesPage() {
             {searchTerm && (
               <button
                 type="button"
-                onClick={() => {}}
+                onClick={handleClearSearch}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
               >
                 Clear

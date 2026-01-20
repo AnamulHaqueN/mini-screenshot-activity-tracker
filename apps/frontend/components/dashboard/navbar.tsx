@@ -24,8 +24,6 @@ export default function Navbar() {
       <div className="flex items-center gap-6">
         <span className="text-lg font-semibold">Activity Tracker</span>
 
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/employees">Employees</Link>
       </div>
 
       {/* Right */}
