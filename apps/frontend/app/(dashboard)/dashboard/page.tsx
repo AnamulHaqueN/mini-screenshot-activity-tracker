@@ -8,9 +8,7 @@ const page = () => {
 
   return (
     <div>
-       <div className="max-w-md p-4">
-          <EmployeeSelect />
-       </div>
+      <EmployeeSelect />
       {/* {data?.map((employee) => (
         <p key={employee.id}>Name - {employee.name}</p>
       ))} */}
