@@ -12,7 +12,7 @@ export const useEmployee = () => {
   });
 };
 
-const useAddEmployee = () => {
+export const useAddEmployee = () => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -27,7 +27,7 @@ const useAddEmployee = () => {
   });
 };
 
-const useUpdateEmployee = () => {
+export const useUpdateEmployee = () => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -44,7 +44,7 @@ const useUpdateEmployee = () => {
   });
 };
 
-const useDeleteEmployee = () => {
+export const useDeleteEmployee = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: employeeService.deleteEmployee,
@@ -60,7 +60,7 @@ const useDeleteEmployee = () => {
   });
 };
 
-const useSearchEmployee = (name: string) => {
+export const useSearchEmployee = (name: string) => {
   return useQuery<Employee[]>({
     queryKey: ["employee", "search", name],
     queryFn: () => employeeService.searchEmployees(name),
