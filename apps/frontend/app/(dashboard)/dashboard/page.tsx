@@ -7,7 +7,9 @@ function Page () {
 
   return (
     <div>
-      <EmployeeSelect />
+       <div className="max-w-md p-4">
+          <EmployeeSelect />
+       </div>
       {/* {data?.map((employee) => (
         <p key={employee.id}>Name - {employee.name}</p>
       ))} */}
