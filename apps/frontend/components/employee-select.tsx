@@ -6,22 +6,32 @@ import { Search, UserPlus, Users, Activity } from "lucide-react";
 //import AddEmployeeModal from "../../components/admin/AddEmployeeModal";
 // import { addHours, format, parseISO } from "date-fns";
 import { Employee } from "@/types/employee";
-import { useDeleteEmployee, useEmployee } from "@/queries/employees";
+import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/employees";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { employeeService } from "@/services/employees";
+import { useDebounce } from "@/hook/useDebounce";
+
 
 export default function AdminEmployeesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
-  const {data: employees = [], isPending, isError, error} = useEmployee(searchTerm)
-
-  const isLoading = isPending;
+//   const {data: employees = [], isPending, isError, error} = useEmployee();
+//   const {data: searchEmployee = []} = useSearchEmployee(searchTerm);
   
-  const handleSearch =  (e: React.FormEvent) => {
-    e.preventDefault();
-  }
+  const { data: allEmployees = [], isPending } = useEmployee();
+  const { data: searchedEmployees = [], isFetching: isSearching, isError, error, isPending: pending } = useSearchEmployee(debouncedSearch);
+  
+  const employees = !pending ? searchedEmployees : allEmployees;
+
+  //const isLoading = false; // isPending || isSearching;
+  const isLoading = isPending || isSearching;
+
+  
+//   const handleSearch =  (e: React.FormEvent) => {
+//     e.preventDefault();
+//   }
 
   const handleClearSearch = () => {
     setSearchTerm("");
@@ -47,7 +57,7 @@ export default function AdminEmployeesPage() {
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <form onSubmit={handleSearch} className="flex-1 max-w-md flex gap-2">
+          <form className="flex-1 max-w-md flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -58,12 +68,12 @@ export default function AdminEmployeesPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-            <button
+            {/* <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
             >
               Search
-            </button>
+            </button> */}
             {searchTerm && (
               <button
                 type="button"

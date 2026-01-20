@@ -3,11 +3,10 @@ import { Employee } from "@/types/employee";
 import { ApiError } from "@/types/error";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useEmployee = (searchTerm?: string) => {
-  console.log('inside react Q', searchTerm)
+export const useEmployee = () => {
   return useQuery({
-    queryKey: ["employee", searchTerm],
-    queryFn: () => employeeService.getEmployees(searchTerm),
+    queryKey: ["employee"],
+    queryFn: employeeService.getEmployees,
     retry: false,
     staleTime: 5 * 60 * 1000, // for 5 min no API call
   });
