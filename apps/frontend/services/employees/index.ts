@@ -2,9 +2,7 @@ import api from "@/http/axios";
 import { Employee, CreateEmployee } from "@/types/employee";
 
 export const employeeService = {
-  async getEmployees(searchTerm?: string): Promise<Employee[]> {
-    if (searchTerm) return this.searchEmployees(searchTerm);
-
+  async getEmployees(): Promise<Employee[]> {
     const response = await api.get("/employees");
     return response.data.data;
   },
