@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoginInput, loginSchema } from "../../../schemas/login";
 import { ZodError } from "zod";
+import { LoginResponse } from "@/types/error";
 
 type FieldErrors = {
   email?: string;
@@ -29,8 +30,10 @@ export default function LoginPage() {
         password: formData.get("password"),
       });
 
-      await mutateAsync(validatedData);
-      router.push("/");
+      const result = await mutateAsync(validatedData) as LoginResponse;
+      const role = result.data.user.role;
+      if(role == 'owner') router.push("/dashboard");
+      else router.push("/");
     } catch (err) {
       // need to upgrade
       if (err instanceof ZodError) {

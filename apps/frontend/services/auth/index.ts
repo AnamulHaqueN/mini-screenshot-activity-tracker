@@ -1,6 +1,6 @@
 import api from "@/http/axios";
 import { ILogin, IRegister } from "@/types/auth";
-import { ApiErrorShape } from "@/types/error";
+import { ApiErrorShape, LoginResponse } from "@/types/error";
 import { User } from "@/types/user";
 
 export const authService = {
@@ -11,7 +11,7 @@ export const authService = {
   },
 
   async login({ email, password }: ILogin) {
-    const response = await api.post<ApiErrorShape>("/auth/login", { email, password });
+    const response = await api.post<LoginResponse | ApiErrorShape>("/auth/login", { email, password });
     return response.data;
   },
 
