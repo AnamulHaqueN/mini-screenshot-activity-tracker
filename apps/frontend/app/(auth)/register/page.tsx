@@ -3,7 +3,7 @@
 import { useRegister } from "@/queries/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { RegisterInput, registerSchema } from "./schema";
+import { RegisterInput, registerSchema } from "../../../schemas/register";
 import { ZodError } from "zod";
 import Link from "next/link";
 import { usePlans } from "@/queries/plans";

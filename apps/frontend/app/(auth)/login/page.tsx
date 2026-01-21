@@ -4,7 +4,7 @@ import { useLogin } from "@/queries/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LoginInput, loginSchema } from "./schema";
+import { LoginInput, loginSchema } from "../../../schemas/login";
 import { ZodError } from "zod";
 
 type FieldErrors = {

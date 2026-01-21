@@ -1,15 +1,12 @@
 "use client"
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Search, UserPlus, Users, Activity } from "lucide-react";
-//import AddEmployeeModal from "../../components/admin/AddEmployeeModal";
 // import { addHours, format, parseISO } from "date-fns";
-import { Employee } from "@/types/employee";
 import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/employees";
-import { useAuthContext } from "@/providers/AuthProvider";
-import { employeeService } from "@/services/employees";
 import { useDebounce } from "@/hook/useDebounce";
+import AddEmployeeModal from "./AddEmployee";
 
 
 export default function AdminEmployeesPage() {
@@ -17,21 +14,12 @@ export default function AdminEmployeesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const debouncedSearch = useDebounce(searchTerm, 500);
 
-//   const {data: employees = [], isPending, isError, error} = useEmployee();
-//   const {data: searchEmployee = []} = useSearchEmployee(searchTerm);
-  
   const { data: allEmployees = [], isPending } = useEmployee();
-  const { data: searchedEmployees = [], isFetching: isSearching, isError, error, isPending: pending } = useSearchEmployee(debouncedSearch);
+  const { data: searchedEmployees = [], refetch, isFetching: isSearching, isError, error, isPending: pending } = useSearchEmployee(debouncedSearch);
   
   const employees = !pending ? searchedEmployees : allEmployees;
 
-  //const isLoading = false; // isPending || isSearching;
   const isLoading = isPending || isSearching;
-
-  
-//   const handleSearch =  (e: React.FormEvent) => {
-//     e.preventDefault();
-//   }
 
   const handleClearSearch = () => {
     setSearchTerm("");
@@ -50,8 +38,6 @@ export default function AdminEmployeesPage() {
         alert("Failed to delete employee");
     }
   }
-
-  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -233,13 +219,13 @@ export default function AdminEmployeesPage() {
         )}
       </main>
 
-      {/* <AddEmployeeModal
+      <AddEmployeeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
-          useSearchEmployee(searchTerm);
+          refetch()
         }}
-      /> */}
+      />
     </div>
   );
 }
