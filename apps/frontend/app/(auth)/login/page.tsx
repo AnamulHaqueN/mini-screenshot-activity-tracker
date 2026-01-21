@@ -120,7 +120,7 @@ export default function LoginPage() {
               href="/register"
               className="text-blue-600 hover:text-blue-500"
             >
-              Don't have an account? Register
+              Don&apos;t have an account? Register
             </Link>
           </div>
         </form>

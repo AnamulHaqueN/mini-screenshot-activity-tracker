@@ -1,9 +1,8 @@
 "use client";
 import EmployeeSelect from "@/components/admin/Employees";
 import { useEmployee } from "@/queries/employees";
-import React from "react";
 
-const page = () => {
+function Page () {
   const { data, isPending, isError, error } = useEmployee();
 
   return (
@@ -16,4 +15,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page
