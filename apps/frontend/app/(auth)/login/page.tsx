@@ -33,7 +33,7 @@ export default function LoginPage() {
       const result = await mutateAsync(validatedData) as LoginResponse;
       const role = result.data.user.role;
       if(role == 'owner') router.push("/dashboard");
-      else router.push("/");
+      else router.push("/screenshot");
     } catch (err) {
       // need to upgrade
       if (err instanceof ZodError) {
