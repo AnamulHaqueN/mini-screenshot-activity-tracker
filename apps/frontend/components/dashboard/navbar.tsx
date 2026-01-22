@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMe, useLogout } from "@/queries/auth";
 import { useRouter } from "next/navigation";
 

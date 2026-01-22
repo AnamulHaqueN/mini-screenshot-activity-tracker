@@ -18,7 +18,10 @@ export default class Screenshot extends BaseModel {
   declare companyId: number
 
   @column.dateTime()
-  declare captureTime: DateTime
+  declare capturedAt: DateTime
+
+  @column.dateTime()
+  declare uploadedAt: DateTime
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

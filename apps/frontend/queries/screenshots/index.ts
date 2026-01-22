@@ -1,16 +1,12 @@
 import { screenshotService } from "@/services/screenshots";
 import { ApiError } from "@/types/error";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useUpload = () => {
-    const qc = useQueryClient();
-
     return useMutation({
         mutationFn: screenshotService.upload,
         retry: false,
-        onSuccess: () => {
-            qc.invalidateQueries({queryKey: ["screenshots"]});
-        },
+        onSuccess: () => {},
         onError: (error: ApiError) => {
             console.error(error.response?.data?.message || "Failed to upload screenshots")
         }

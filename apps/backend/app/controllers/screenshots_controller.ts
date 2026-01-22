@@ -12,9 +12,9 @@ export default class ScreenshotsController {
   async upload({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
 
-    if (!user.isActive) {
-      return response.forbidden({ message: 'Your account is inactive' })
-    }
+    //  if (!user.isActive) {
+    //    return response.forbidden({ message: 'Your account is inactive' })
+    //  }
 
     const { screenshot } = await request.validateUsing(uploadScreenshotValidator)
 
@@ -40,7 +40,8 @@ export default class ScreenshotsController {
         filePath: uploadResult.secure_url,
         userId: user.id,
         companyId: user.companyId,
-        captureTime: captureDateTime,
+        capturedAt: captureDateTime,
+        uploadedAt: DateTime.now(),
       })
 
       return response.created({
@@ -48,7 +49,7 @@ export default class ScreenshotsController {
         data: {
           id: screenshotRecord.id,
           filePath: screenshotRecord.filePath,
-          captureTime: screenshotRecord.captureTime,
+          capturedAt: screenshotRecord.capturedAt,
           date: date,
           hour: hour,
           minuteBucket: minuteBucket,
@@ -102,7 +103,7 @@ export default class ScreenshotsController {
     return response.ok({
       data: screenshots.serialize({
         fields: {
-          pick: ['id', 'filePath', 'captureTime', 'date', 'hour', 'minuteBucket', 'createdAt'],
+          pick: ['id', 'filePath', 'capturedAt', 'date', 'hour', 'minuteBucket', 'createdAt'],
         },
         relations: {
           user: {
@@ -157,7 +158,7 @@ export default class ScreenshotsController {
     const grouped: Record<number, Record<number, any[]>> = {}
 
     screenshots.forEach((screenshot) => {
-      const time = screenshot.captureTime
+      const time = screenshot.capturedAt
       const hour = time.hour
       const minuteBucket = Math.floor(time.minute / 5) * 5
 
@@ -167,7 +168,7 @@ export default class ScreenshotsController {
       grouped[hour][minuteBucket].push({
         id: screenshot.id,
         filePath: screenshot.filePath,
-        captureTime: screenshot.captureTime,
+        capturedAt: screenshot.capturedAt,
       })
     })
 
@@ -184,8 +185,8 @@ export default class ScreenshotsController {
       statistics: {
         totalScreenshots,
         hoursActive,
-        firstScreenshot: screenshots[0]?.captureTime ?? null,
-        lastScreenshot: screenshots[screenshots.length - 1]?.captureTime ?? null,
+        firstScreenshot: screenshots[0]?.capturedAt ?? null,
+        lastScreenshot: screenshots[screenshots.length - 1]?.capturedAt ?? null,
       },
       screenshots: grouped,
     })
@@ -223,7 +224,7 @@ export default class ScreenshotsController {
     const grouped: Record<number, Record<number, any[]>> = {}
 
     screenshots.forEach((screenshot) => {
-      const time = screenshot.captureTime
+      const time = screenshot.capturedAt
       const hour = time.hour
       const minuteBucket = Math.floor(time.minute / 5) * 5
 
@@ -233,7 +234,7 @@ export default class ScreenshotsController {
       grouped[hour][minuteBucket].push({
         id: screenshot.id,
         filePath: screenshot.filePath,
-        captureTime: screenshot.captureTime,
+        capturedAt: screenshot.capturedAt,
       })
     })
 
@@ -249,8 +250,8 @@ export default class ScreenshotsController {
       statistics: {
         totalScreenshots,
         hoursActive,
-        firstScreenshot: screenshots[0]?.captureTime ?? null,
-        lastScreenshot: screenshots[screenshots.length - 1]?.captureTime ?? null,
+        firstScreenshot: screenshots[0]?.capturedAt ?? null,
+        lastScreenshot: screenshots[screenshots.length - 1]?.capturedAt ?? null,
       },
       screenshots: grouped,
     })

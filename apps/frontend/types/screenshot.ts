@@ -30,3 +30,8 @@ export interface ScreenshotGroupedResponse {
   };
   screenshots: GroupedScreenshots;
 }
+
+export interface ScreenshotResponse {
+  meta: PaginationMeta;
+  data: Screenshot[];
+}
