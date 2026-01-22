@@ -16,5 +16,8 @@
   "engines": {
     "node": ">=20",
     "pnpm": ">=10"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }

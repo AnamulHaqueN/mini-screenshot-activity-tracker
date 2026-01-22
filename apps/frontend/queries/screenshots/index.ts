@@ -13,11 +13,11 @@ export const useUpload = () => {
     })
 }
 
-export const useScreenshot = (employeeId: number) => {
+export const useScreenshots = (employeeId: number, date: string) => {
     return useQuery({
         queryKey: ["screenshots", employeeId],
-        queryFn: () => screenshotService.getScreenshots(employeeId),
+        queryFn: () => screenshotService.getGroupedScreenshots(employeeId, date),
         retry: false,
-        staleTime: 5000 // for 5 second
+        staleTime: 5000
     })
 }

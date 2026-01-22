@@ -15,11 +15,6 @@ export const screenshotService = {
     return response.data;
   },
 
-  async getScreenshots(employeeId?: number): Promise<ScreenshotResponse> {
-    const { data } = await api.get("/screenshots", { params:{employeeId} });
-    return data.data;
-  },
-
   async getGroupedScreenshots(
     employeeId: number,
     date: string

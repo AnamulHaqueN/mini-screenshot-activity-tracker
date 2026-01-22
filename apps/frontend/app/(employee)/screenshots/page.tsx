@@ -1,11 +1,9 @@
 import { Upload } from '@/components/screenshot/Upload'
 
-const page = () => {
+export default function Page() {
   return (
     <div>
         <Upload />
     </div>
   )
 }
-
-export default page
