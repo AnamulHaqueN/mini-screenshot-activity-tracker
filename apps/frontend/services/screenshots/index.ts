@@ -1,6 +1,6 @@
 
 import api from "@/http/axios";
-import type { ScreenshotGroupedResponse, ScreenshotResponse } from "../../types/screenshot";
+import type { ScreenshotGroupedResponse } from "../../types/screenshot";
 
 export const screenshotService = {
 

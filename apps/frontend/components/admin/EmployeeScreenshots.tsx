@@ -53,7 +53,7 @@ interface ScreenshotGroup {
 
 type ViewMode = "timeline" | "hourly" | "detailed";
 
-export default function EmployeeScreenshots() {
+export default function EmployeeScreenshotsPage() {
   const params = useParams();
   const router = useRouter();
   const employeeId = params?.employeeId as string;
