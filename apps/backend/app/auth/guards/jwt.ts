@@ -1,4 +1,4 @@
-import { symbols, errors } from '@adonisjs/auth'
+import { symbols } from '@adonisjs/auth'
 
 /**
  * The bridge between the User provider and the

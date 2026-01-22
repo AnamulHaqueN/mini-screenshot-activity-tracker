@@ -14,6 +14,9 @@ export default class EmployeesController {
     return response.ok({ data: employees })
   }
 
+  /**
+   * Add Employee
+   */
   async store({ auth, request, response }: HttpContext) {
     const user = auth.getUserOrFail()
 
@@ -36,7 +39,7 @@ export default class EmployeesController {
       password: data.password,
       companyId: user.companyId,
       role: 'employee',
-      isActive: true,
+      // isActive: true,
     })
 
     return response.created({

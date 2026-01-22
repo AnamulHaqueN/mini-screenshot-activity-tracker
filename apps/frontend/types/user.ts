@@ -1,6 +1,6 @@
 import { Company } from ".";
 
-export type UserRole = "owner" | "employee";
+export type UserRole = "owner" | "employee" | "admin";
 
 export type User = {
   id: number;

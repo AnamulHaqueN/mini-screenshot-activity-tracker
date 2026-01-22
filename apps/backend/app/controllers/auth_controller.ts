@@ -19,18 +19,24 @@ export default class AuthController {
       planId: plan.id,
     })
 
-    // Create owner user
+    // Create owner or admin
     const owner = await User.create({
       name: data.ownerName,
       email: data.ownerEmail,
       password: data.password,
       companyId: company.id,
-      role: 'owner',
-      isActive: true,
+      role: 'admin',
+      // isActive: true,
     })
 
+    /**
+     * Ignore access token creation in the time of registration
+     * Token will be generated in login time
+     */
     // Generate JWT token
-    const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
+    //  const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
+
+    console.log('done with token')
 
     return response.created({
       message: 'Company registered successfully',
@@ -46,7 +52,7 @@ export default class AuthController {
           email: owner.email,
           role: owner.role,
         },
-        token: token.value!.release(),
+        //   token: token.value!.release(),
       },
     })
   }
@@ -55,7 +61,7 @@ export default class AuthController {
     const { email, password } = await request.validateUsing(loginValidator)
 
     // Find user
-    const user = await User.query().where('email', email).where('isActive', true).first()
+    const user = await User.query().where('email', email).first()
 
     if (!user) {
       return response.unauthorized({ message: 'Please enter valid email and password' })

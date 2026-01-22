@@ -32,10 +32,11 @@ export default function LoginPage() {
 
       const result = await mutateAsync(validatedData) as LoginResponse;
       const role = result.data.user.role;
-      if(role == 'owner') router.push("/dashboard");
-      else router.push("/screenshot");
+
+      if(role === 'admin' || role === 'owner') router.push("/dashboard");
+      else router.push("/screenshots");
     } catch (err) {
-      // need to upgrade
+      // need to be upgraded
       if (err instanceof ZodError) {
         setFieldErrors(err.message as FieldErrors);
       }

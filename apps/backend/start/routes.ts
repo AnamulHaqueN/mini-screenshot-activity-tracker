@@ -42,7 +42,7 @@ router
         router.put('/employees/:id', [EmployeesController, 'update'])
         router.delete('/employees/:id', [EmployeesController, 'destroy'])
       })
-      .use(middleware.role(['owner']))
+      .use(middleware.role(['owner', 'admin']))
 
     // Screenshot routes
     router
