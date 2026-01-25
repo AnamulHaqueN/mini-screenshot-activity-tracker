@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Search, UserPlus, Users, Activity } from "lucide-react";
-// import { addHours, format, parseISO } from "date-fns";
+import { addHours, format, parseISO } from "date-fns";
 import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/employees";
 import { useDebounce } from "@/hooks/useDebounce";
 import AddEmployeeModal from "./AddEmployee";
@@ -22,7 +22,6 @@ export default function Employees() {
    const { data: searchedEmployees = [], refetch, isFetching: isSearching, error, isPending: pending } = useSearchEmployee(debouncedSearch);
    
    const employees = !pending ? searchedEmployees : allEmployees;
-
    const isLoading = isPending || isSearching;
 
    const handleClearSearch = () => {
@@ -160,16 +159,13 @@ export default function Employees() {
                            <div className="flex items-center gap-2">
                            <Activity className="w-4 h-4 text-gray-400" />
                            <span className="text-sm text-gray-900">
-                              {
-                              //employee.screenshot_count || 0
-                              0
-                              }
+                              {employee.screenshot_count || 0}
                            </span>
                            </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                            <div className="text-sm text-gray-900">
-                           {/* {employee.last_screenshot_at
+                           {employee.last_screenshot_at
                               ? format(
                                  addHours(
                                     parseISO(employee.last_screenshot_at),
@@ -177,13 +173,12 @@ export default function Employees() {
                                  ),
                                  "MMM d, yyyy HH:mm"
                                  )
-                              : "Never"} */
-                              "Never"}
+                              : "Never"}
                            </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                            <button
-                                onClick={() => handleViewEmployee(employee.id)}
+                              onClick={() => handleViewEmployee(employee.id)}
                               className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 mr-4"
                            >
                            <span className="cursor-pointer">View</span>
