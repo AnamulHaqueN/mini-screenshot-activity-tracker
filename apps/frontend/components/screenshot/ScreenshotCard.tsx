@@ -30,12 +30,6 @@ function ScreenshotCard({ screenshot, openModal } : TScreenshotCardProps) {
                window.open(screenshot.filePath, "_blank")
             }}
          />
-
-         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center">
-            <p className="text-white text-xs opacity-0 group-hover:opacity-100 transition">
-               ${formattedTime}
-            </p>
-         </div>
       </div>
    );
 }

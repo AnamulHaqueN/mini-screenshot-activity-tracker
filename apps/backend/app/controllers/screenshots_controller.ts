@@ -206,7 +206,7 @@ export default class ScreenshotsController {
         hoursActive,
         totalScreenshots: groupedArray.reduce((sum, g) => sum + g.count, 0),
       },
-      screenshots: groupedArray,
+      groupedScreenshotsArray: groupedArray,
     })
   }
 

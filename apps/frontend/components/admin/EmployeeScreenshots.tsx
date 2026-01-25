@@ -15,7 +15,7 @@ import {
 import { format, subDays, addDays, isToday, parseISO } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Screenshot, ScreenshotGroup } from "@/types/screenshot";
+import { GroupedScreenshotsInfo, Screenshot } from "@/types/screenshot";
 import { useScreenshots } from "@/queries/screenshots";
 import ScreenshotCard from "../screenshot/ScreenshotCard";
 
@@ -41,29 +41,13 @@ export default function EmployeeScreenshotsPage() {
   const { data, isPending: isLoading, error } = useScreenshots(Number(employeeId), selectedDate)
 
   // Convert API response to flat array of groups
-  const getGroups = (): ScreenshotGroup[] => {
+  const getGroups = (): GroupedScreenshotsInfo[] => {
     if (!data) return [];
+    const groups: GroupedScreenshotsInfo[] = [];
 
-    const groups: ScreenshotGroup[] = [];
-
-    Object.keys(data.screenshots).forEach((hourStr) => {
-      const hour = parseInt(hourStr);
-      Object.keys(data.screenshots[hourStr]).forEach((bucketStr) => {
-        const bucket = parseInt(bucketStr);
-        const screenshots = data.screenshots[hourStr][bucketStr];
-
-        const startMinute = bucket;
-        const endMinute = bucket + 10;
-
-        groups.push({
-          hour,
-          minuteBucket: bucket,
-          timeRange: `${String(hour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")} - ${String(hour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
-          count: screenshots.length,
-          screenshots,
-        });
-      });
-    });
+    data.groupedScreenshotsArray.forEach((groupedScreenshots) => {
+      groups.push(groupedScreenshots);
+   });
 
     return groups.sort((a, b) => {
       if (a.hour !== b.hour) return a.hour - b.hour;
@@ -71,9 +55,11 @@ export default function EmployeeScreenshotsPage() {
     });
   };
 
+  const groupedScreenshots = getGroups();
+
   const getHourlyGroups = () => {
     const groups = getGroups();
-    const hourlyMap = new Map<number, ScreenshotGroup[]>();
+    const hourlyMap = new Map<number, GroupedScreenshotsInfo[]>();
 
     groups.forEach((group) => {
       if (!hourlyMap.has(group.hour)) {
@@ -115,14 +101,12 @@ export default function EmployeeScreenshotsPage() {
   const expandAll = () => {
     if (!data) return;
     if (viewMode === "hourly") {
-      const allHours = new Set(Object.keys(data.screenshots).map(h => parseInt(h)));
+      const allHours = new Set(Object.keys(data.groupedScreenshotsArray).map(h => parseInt(h)));
       setExpandedHours(allHours);
     } else {
       const allGroups = new Set<string>();
-      Object.keys(data.screenshots).forEach((hour) => {
-        Object.keys(data.screenshots[hour]).forEach((bucket) => {
-          allGroups.add(`${hour}-${bucket}`);
-        });
+      data.groupedScreenshotsArray.forEach((group) => {
+         allGroups.add(`${group.hour}-${group.minuteBucket}`);
       });
       setExpandedGroups(allGroups);
     }
@@ -159,8 +143,6 @@ export default function EmployeeScreenshotsPage() {
     setModalOpen(false);
     setModalScreenshot(null);
   };
-
-  const groups = getGroups();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -311,7 +293,7 @@ export default function EmployeeScreenshotsPage() {
           </div>
         )}
 
-        {!isLoading && data && groups.length === 0 && (
+        {!isLoading && data && groupedScreenshots.length === 0 && (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No screenshots found</h3>
@@ -319,20 +301,21 @@ export default function EmployeeScreenshotsPage() {
         )}
 
         {/* Timeline View */}
-        {!isLoading && data && groups.length > 0 && viewMode === "timeline" && (
+        {!isLoading && data && groupedScreenshots.length > 0 && viewMode === "timeline" && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {groups.flatMap((group) => group.screenshots).map((screenshot) => 
-               <ScreenshotCard
+            {groupedScreenshots.flatMap((group) => group.screenshots).map((screenshot) =>
+               {console.log(screenshot.id)
+               return <ScreenshotCard
                   key={crypto.randomUUID()}
                   screenshot={screenshot}
                   openModal={openModal}
-               />
+               />}
             )}
           </div>
         )}
 
         {/* Hourly View */}
-        {!isLoading && data && groups.length > 0 && viewMode === "hourly" && (
+        {!isLoading && data && groupedScreenshots.length > 0 && viewMode === "hourly" && (
           <div className="space-y-4">
             {getHourlyGroups().map(({ hour, groups, totalCount }) => {
               const isExpanded = expandedHours.has(hour);
@@ -381,9 +364,9 @@ export default function EmployeeScreenshotsPage() {
         )}
 
         {/* Detailed View */}
-        {!isLoading && data && groups.length > 0 && viewMode === "detailed" && (
+        {!isLoading && data && groupedScreenshots.length > 0 && viewMode === "detailed" && (
           <div className="space-y-4">
-            {groups.map((group) => {
+            {groupedScreenshots.map((group) => {
               const isExpanded = expandedGroups.has(`${group.hour}-${group.minuteBucket}`);
 
               return (

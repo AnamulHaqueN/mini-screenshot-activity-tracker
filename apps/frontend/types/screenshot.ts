@@ -16,10 +16,12 @@ export interface PaginationMeta {
   previousPageUrl: string | null;
 }
 
-interface GroupedScreenshots {
-  [hour: string]: {
-    [minuteBucket: string]: Screenshot[];
-  };
+export interface GroupedScreenshotsInfo {
+   hour: number,
+   minuteBucket: number,
+   timeRange: string,
+   count: number,
+   screenshots: Screenshot[]
 }
 
 export interface ScreenshotGroupedResponse {
@@ -32,13 +34,5 @@ export interface ScreenshotGroupedResponse {
    hoursActive: number;
    totalScreenshots: number;
   };
-  screenshots: GroupedScreenshots;
-}
-
-export interface ScreenshotGroup {
-  hour: number;
-  minuteBucket: number;
-  timeRange: string;
-  count: number;
-  screenshots: Screenshot[];
+  groupedScreenshotsArray: GroupedScreenshotsInfo[];
 }

@@ -1,4 +1,4 @@
-import { Upload } from '@/components/screenshot/Upload'
+import { Upload } from '@/components/screenshot/ScreenshotUpload'
 
 export default function Page() {
   return (
