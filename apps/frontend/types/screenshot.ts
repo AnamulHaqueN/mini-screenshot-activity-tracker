@@ -1,4 +1,3 @@
-// For admin Dashboard
 export interface Screenshot {
   id: number;
   filePath: string;
@@ -17,21 +16,29 @@ export interface PaginationMeta {
   previousPageUrl: string | null;
 }
 
-export interface GroupedScreenshots {
-  [hour: number]: {
-    [minuteBucket: number]: Screenshot[];
+interface GroupedScreenshots {
+  [hour: string]: {
+    [minuteBucket: string]: Screenshot[];
   };
 }
 
 export interface ScreenshotGroupedResponse {
+  employee: {
+   id: number;
+   name: string;
+  };
   date: string;
   statistics: {
-    totalScreenshots: number;
+   hoursActive: number;
+   totalScreenshots: number;
   };
   screenshots: GroupedScreenshots;
 }
 
-export interface ScreenshotResponse {
-  meta: PaginationMeta;
-  data: Screenshot[];
+export interface ScreenshotGroup {
+  hour: number;
+  minuteBucket: number;
+  timeRange: string;
+  count: number;
+  screenshots: Screenshot[];
 }

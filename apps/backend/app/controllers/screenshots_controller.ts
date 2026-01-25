@@ -120,15 +120,22 @@ export default class ScreenshotsController {
    * Get screenshots grouped by hour and 5-minute intervals (Owner only)
    * This is the main view for the dashboard
    */
-  async grouped({ auth, request, response }: HttpContext) {
+  async getGroupedScreenshots({ auth, request, response }: HttpContext) {
     const user = await auth.getUserOrFail()
 
     const employeeId = Number(request.input('employeeId'))
-    const date = request.input('date') // yyyy-MM-dd
+    const dateString = request.input('date')
 
-    if (!employeeId || !date) {
+    if (!employeeId || !dateString) {
       return response.badRequest({
         message: 'employeeId and date are required',
+      })
+    }
+
+    const date = DateTime.fromISO(dateString, { zone: 'Asia/Dhaka' })
+    if (!date.isValid) {
+      return response.badRequest({
+        error: 'Invalid date format. Use YYYY-MM-DD',
       })
     }
 
@@ -143,52 +150,63 @@ export default class ScreenshotsController {
       return response.notFound({ message: 'Employee not found' })
     }
 
-    // Create date range (full day)
-    const startOfDay = DateTime.fromISO(date).startOf('day')
-    const endOfDay = startOfDay.endOf('day')
+    const grouped = await Screenshot.getGroupedScreenshots(employeeId, date)
+    const groupedArray: any[] = []
 
-    // Fetch screenshots for that day
-    const screenshots = await Screenshot.query()
-      .where('company_id', user.companyId)
-      .where('user_id', employeeId)
-      .whereBetween('capture_time', [startOfDay.toJSDate(), endOfDay.toJSDate()])
-      .orderBy('capture_time', 'asc')
+    for (const [hour, buckets] of Object.entries(grouped)) {
+      for (const [bucket, screenshots] of Object.entries(buckets)) {
+        const screenshotData = await Promise.all(
+          screenshots.map(async (s: any) => {
+            const data: any = {
+              id: s.id,
+              filePath: s.filePath,
+              capturedAt: s.capturedAt.toISO(),
+            }
 
-    // Group screenshots: hour -> minuteBucket
-    const grouped: Record<number, Record<number, any[]>> = {}
+            return data
+          })
+        )
 
-    screenshots.forEach((screenshot) => {
-      const time = screenshot.capturedAt
-      const hour = time.hour
-      const minuteBucket = Math.floor(time.minute / 5) * 5
+        const bucketStart = DateTime.fromObject({
+          year: date.year,
+          month: date.month,
+          day: date.day,
+          hour: Number(hour),
+          minute: Number(bucket),
+        })
 
-      if (!grouped[hour]) grouped[hour] = {}
-      if (!grouped[hour][minuteBucket]) grouped[hour][minuteBucket] = []
+        const interval = 10
+        const bucketEnd = bucketStart.plus({ minutes: interval })
 
-      grouped[hour][minuteBucket].push({
-        id: screenshot.id,
-        filePath: screenshot.filePath,
-        capturedAt: screenshot.capturedAt,
-      })
+        groupedArray.push({
+          hour: bucketStart.hour,
+          minuteBucket: bucketStart.minute,
+          timeRange: `${bucketStart.toFormat('HH:mm')} - ${bucketEnd.toFormat('HH:mm')}`,
+          count: screenshots.length,
+          screenshots: screenshotData,
+        })
+      }
+    }
+
+    groupedArray.sort((a, b) => {
+      if (a.hour !== b.hour) return a.hour - b.hour
+      return a.minuteBucket - b.minuteBucket
     })
 
     // Statistics
-    const totalScreenshots = screenshots.length
-    const hoursActive = Object.keys(grouped).length
+    const hoursActive = Object.keys(groupedArray).length
 
     return response.ok({
       employee: {
         id: employee.id,
         name: employee.name,
       },
-      date,
+      date: date.toISODate(),
       statistics: {
-        totalScreenshots,
         hoursActive,
-        firstScreenshot: screenshots[0]?.capturedAt ?? null,
-        lastScreenshot: screenshots[screenshots.length - 1]?.capturedAt ?? null,
+        totalScreenshots: groupedArray.reduce((sum, g) => sum + g.count, 0),
       },
-      screenshots: grouped,
+      screenshots: groupedArray,
     })
   }
 

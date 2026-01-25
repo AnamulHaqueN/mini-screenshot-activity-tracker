@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   ChevronDown,
@@ -15,57 +15,21 @@ import {
 import { format, subDays, addDays, isToday, parseISO } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-
-interface Screenshot {
-  id: number;
-  filePath: string;
-  captureTime: string;
-}
-
-interface GroupedScreenshots {
-  [hour: string]: {
-    [minuteBucket: string]: Screenshot[];
-  };
-}
-
-interface ApiResponse {
-  employee: {
-    id: number;
-    name: string;
-  };
-  date: string;
-  statistics: {
-    totalScreenshots: number;
-    hoursActive: number;
-    firstScreenshot: string;
-    lastScreenshot: string;
-  };
-  screenshots: GroupedScreenshots;
-}
-
-interface ScreenshotGroup {
-  hour: number;
-  minuteBucket: number;
-  timeRange: string;
-  count: number;
-  screenshots: Screenshot[];
-}
+import { Screenshot, ScreenshotGroup } from "@/types/screenshot";
+import { useScreenshots } from "@/queries/screenshots";
+import ScreenshotCard from "../screenshot/ScreenshotCard";
 
 type ViewMode = "timeline" | "hourly" | "detailed";
 
 export default function EmployeeScreenshotsPage() {
   const params = useParams();
   const router = useRouter();
-  const employeeId = params?.employeeId as string;
+  const employeeId = params?.id as string;
 
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
-
-  const [data, setData] = useState<ApiResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const [expandedHours, setExpandedHours] = useState<Set<number>>(new Set());
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -74,66 +38,7 @@ export default function EmployeeScreenshotsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalScreenshot, setModalScreenshot] = useState<Screenshot | null>(null);
 
-  useEffect(() => {
-    if (employeeId) {
-      fetchScreenshots();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employeeId, selectedDate]);
-
-  // Close modal on Escape
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-
-    if (modalOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
-  }, [modalOpen]);
-
-  const fetchScreenshots = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch(
-        `/api/admin/employees/${employeeId}/screenshots/grouped?date=${selectedDate}`,
-        {
-          credentials: "include", // Send httpOnly cookies
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to load screenshots");
-      }
-
-      const result: ApiResponse = await response.json();
-      setData(result);
-
-      // Auto-expand all in timeline view
-      if (viewMode === "timeline") {
-        const allGroups = new Set<string>();
-        Object.keys(result.screenshots).forEach((hour) => {
-          Object.keys(result.screenshots[hour]).forEach((bucket) => {
-            allGroups.add(`${hour}-${bucket}`);
-          });
-        });
-        setExpandedGroups(allGroups);
-      }
-    } catch (err) {
-      setError(`Failed to load screenshots, ${err}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data, isPending: isLoading, error } = useScreenshots(Number(employeeId), selectedDate)
 
   // Convert API response to flat array of groups
   const getGroups = (): ScreenshotGroup[] => {
@@ -253,30 +158,6 @@ export default function EmployeeScreenshotsPage() {
   const closeModal = () => {
     setModalOpen(false);
     setModalScreenshot(null);
-  };
-
-  const renderScreenshotCard = (screenshot: Screenshot) => {
-    return (
-      <div
-        key={screenshot.id}
-        className="group relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 hover:border-blue-500 transition cursor-pointer aspect-video"
-        onClick={() => openModal(screenshot)}
-      >
-        <Image
-          src={screenshot.filePath}
-          alt={`Screenshot at ${format(new Date(screenshot.captureTime), "HH:mm:ss")}`}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-        />
-
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center">
-          <p className="text-white text-xs opacity-0 group-hover:opacity-100 transition">
-            {format(new Date(screenshot.captureTime), "HH:mm:ss")}
-          </p>
-        </div>
-      </div>
-    );
   };
 
   const groups = getGroups();
@@ -418,7 +299,7 @@ export default function EmployeeScreenshotsPage() {
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-red-600 font-medium">Error loading screenshots</p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
+              <p className="text-sm text-red-600 mt-1">{error.message}</p>
             </div>
           </div>
         )}
@@ -440,7 +321,7 @@ export default function EmployeeScreenshotsPage() {
         {/* Timeline View */}
         {!isLoading && data && groups.length > 0 && viewMode === "timeline" && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {groups.flatMap((group) => group.screenshots).map((screenshot) => renderScreenshotCard(screenshot))}
+            {groups.flatMap((group) => group.screenshots).map((screenshot) => ScreenshotCard(screenshot, openModal))}
           </div>
         )}
 
@@ -477,7 +358,7 @@ export default function EmployeeScreenshotsPage() {
                   {isExpanded && (
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {groups.flatMap((group) => group.screenshots.map((screenshot) => renderScreenshotCard(screenshot)))}
+                        {groups.flatMap((group) => group.screenshots.map((screenshot) => ScreenshotCard(screenshot, openModal)))}
                       </div>
                     </div>
                   )}
@@ -518,7 +399,7 @@ export default function EmployeeScreenshotsPage() {
                   {isExpanded && (
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {group.screenshots.map((screenshot) => renderScreenshotCard(screenshot))}
+                        {group.screenshots.map((screenshot) => ScreenshotCard(screenshot, openModal))}
                       </div>
                     </div>
                   )}

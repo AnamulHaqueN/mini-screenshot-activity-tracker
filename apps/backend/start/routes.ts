@@ -42,7 +42,7 @@ router
 
         // Screenshots routes (owner or admin)
         router.get('/screenshots', [ScreenshotsController, 'index'])
-        router.get('/screenshots/grouped', [ScreenshotsController, 'grouped'])
+        router.get('/screenshots/grouped', [ScreenshotsController, 'getGroupedScreenshots'])
         router.get('/screenshots/grouped/all', [ScreenshotsController, 'groupedAll'])
       })
       .prefix('/admin')

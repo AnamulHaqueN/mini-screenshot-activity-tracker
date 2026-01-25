@@ -15,7 +15,7 @@ export const useUpload = () => {
 
 export const useScreenshots = (employeeId: number, date: string) => {
     return useQuery({
-        queryKey: ["screenshots", employeeId],
+        queryKey: ["screenshots", employeeId, date],
         queryFn: () => screenshotService.getGroupedScreenshots(employeeId, date),
         retry: false,
         staleTime: 5000

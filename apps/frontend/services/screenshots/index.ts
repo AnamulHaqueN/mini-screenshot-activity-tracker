@@ -1,6 +1,7 @@
 
 import api from "@/http/axios";
-import type { ScreenshotGroupedResponse } from "../../types/screenshot";
+import { ApiErrorShape } from "@/types/error";
+import { ScreenshotGroupedResponse } from "@/types/screenshot";
 
 export const screenshotService = {
 
@@ -8,7 +9,7 @@ export const screenshotService = {
     const formData = new FormData();
     formData.append("screenshot", screenshot);
 
-    const response = await api.post("/api/employee/screenshots", formData, {
+    const response = await api.post<ApiErrorShape>("/api/employee/screenshots", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -18,8 +19,9 @@ export const screenshotService = {
   async getGroupedScreenshots(
     employeeId: number,
     date: string
-  ): Promise<ScreenshotGroupedResponse> {
-    const response = await api.get("/api/admin/screenshots/grouped", {
+  ) {
+   console.log(employeeId, date)
+    const response = await api.get<ScreenshotGroupedResponse>("/api/admin/screenshots/grouped", {
       params: { employeeId, date },
     });
     return response.data;
