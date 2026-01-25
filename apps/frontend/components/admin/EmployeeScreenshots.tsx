@@ -9,12 +9,10 @@ import {
   AlertCircle,
   Loader2,
   ChevronLeft,
-  ChevronRight as ChevronRightIcon,
-  X,
+  ChevronRight as ChevronRightIcon
 } from "lucide-react";
 import { format, subDays, addDays, isToday, parseISO } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { GroupedScreenshotsInfo, Screenshot } from "@/types/screenshot";
 import { useScreenshots } from "@/queries/screenshots";
 import ScreenshotCard from "../screenshot/ScreenshotCard";
@@ -35,8 +33,8 @@ export default function EmployeeScreenshotsPage() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   // Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalScreenshot, setModalScreenshot] = useState<Screenshot | null>(null);
+  const [, setModalOpen] = useState(false);
+  const [, setModalScreenshot] = useState<Screenshot | null>(null);
 
   const { data, isPending: isLoading, error } = useScreenshots(Number(employeeId), selectedDate)
 
@@ -54,7 +52,6 @@ export default function EmployeeScreenshotsPage() {
       return a.minuteBucket - b.minuteBucket;
     });
   };
-
   const groupedScreenshots = getGroups();
 
   const getHourlyGroups = () => {
@@ -137,11 +134,6 @@ export default function EmployeeScreenshotsPage() {
   const openModal = (screenshot: Screenshot) => {
     setModalScreenshot(screenshot);
     setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalScreenshot(null);
   };
 
   return (
@@ -254,7 +246,7 @@ export default function EmployeeScreenshotsPage() {
                   {data.statistics.totalScreenshots !== 1 ? "s" : ""}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {data.statistics.hoursActive} hours active
+                  {data.statistics.hoursActive} hour{data.statistics.hoursActive !== 1 ? 's' : ''} active
                 </p>
               </div>
 
@@ -304,12 +296,11 @@ export default function EmployeeScreenshotsPage() {
         {!isLoading && data && groupedScreenshots.length > 0 && viewMode === "timeline" && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {groupedScreenshots.flatMap((group) => group.screenshots).map((screenshot) =>
-               {console.log(screenshot.id)
-               return <ScreenshotCard
+               <ScreenshotCard
                   key={crypto.randomUUID()}
                   screenshot={screenshot}
                   openModal={openModal}
-               />}
+               />
             )}
           </div>
         )}
@@ -410,34 +401,6 @@ export default function EmployeeScreenshotsPage() {
           </div>
         )}
       </main>
-
-      {/* Modal */}
-      {modalOpen && modalScreenshot && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90" onClick={closeModal}>
-          <div className="relative max-w-7xl max-h-[90vh] w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={closeModal}
-              className="absolute -top-12 right-0 p-2 text-white hover:bg-white/10 rounded-lg transition"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <div className="absolute -top-12 left-0 text-white text-sm">
-              <p>{format(new Date(modalScreenshot.capturedAt), "MMMM d, yyyy 'at' HH:mm:ss")}</p>
-            </div>
-
-            <div className="bg-white rounded-lg overflow-hidden relative h-[80vh]">
-              <Image
-                src={modalScreenshot.filePath}
-                alt="Screenshot preview"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
