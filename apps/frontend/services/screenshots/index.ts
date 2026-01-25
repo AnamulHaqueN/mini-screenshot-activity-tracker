@@ -8,7 +8,7 @@ export const screenshotService = {
     const formData = new FormData();
     formData.append("screenshot", screenshot);
 
-    const response = await api.post("/screenshots", formData, {
+    const response = await api.post("/api/employee/screenshots", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -19,7 +19,7 @@ export const screenshotService = {
     employeeId: number,
     date: string
   ): Promise<ScreenshotGroupedResponse> {
-    const response = await api.get("/screenshots/grouped", {
+    const response = await api.get("/api/admin/screenshots/grouped", {
       params: { employeeId, date },
     });
     return response.data;
