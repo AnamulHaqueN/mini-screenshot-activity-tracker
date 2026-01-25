@@ -7,6 +7,7 @@ import { Search, UserPlus, Users, Activity } from "lucide-react";
 import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/employees";
 import { useDebounce } from "@/hooks/useDebounce";
 import AddEmployeeModal from "./AddEmployee";
+import { useRouter } from "next/navigation";
 
 
 export default function Employees() {
@@ -14,6 +15,8 @@ export default function Employees() {
    const [isModalOpen, setIsModalOpen] = useState(false);
    const debouncedSearch = useDebounce(searchTerm, 500);
    const { mutateAsync: deleteEmployee } = useDeleteEmployee();
+
+   const router = useRouter();
 
    const { data: allEmployees = [], isPending } = useEmployee();
    const { data: searchedEmployees = [], refetch, isFetching: isSearching, error, isPending: pending } = useSearchEmployee(debouncedSearch);
@@ -26,6 +29,9 @@ export default function Employees() {
          setSearchTerm("");
    }
 
+   const handleViewEmployee = (employeeId: number) => {
+      router.push(`/employees/${employeeId}/screenshots`);
+   };
 
    const handleDeleteEmployee = async (id: number, name:string) => {
       if(!confirm(`Delete ${name}?`)) return;
@@ -177,7 +183,7 @@ export default function Employees() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                            <button
-                              //   onClick={() => handleViewEmployee(employee.id)}
+                                onClick={() => handleViewEmployee(employee.id)}
                               className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 mr-4"
                            >
                            <span className="cursor-pointer">View</span>

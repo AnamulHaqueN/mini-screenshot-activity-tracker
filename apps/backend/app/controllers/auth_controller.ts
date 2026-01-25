@@ -36,8 +36,6 @@ export default class AuthController {
     // Generate JWT token
     //  const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
 
-    console.log('done with token')
-
     return response.created({
       message: 'Company registered successfully',
       data: {
