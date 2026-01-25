@@ -101,7 +101,7 @@ export default function EmployeeScreenshotsPage() {
   const expandAll = () => {
     if (!data) return;
     if (viewMode === "hourly") {
-      const allHours = new Set(Object.keys(data.groupedScreenshotsArray).map(h => parseInt(h)));
+      const allHours = new Set(data.groupedScreenshotsArray.map(g => g.hour));
       setExpandedHours(allHours);
     } else {
       const allGroups = new Set<string>();
