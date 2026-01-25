@@ -169,7 +169,7 @@ export default function EmployeeScreenshotsPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push("/admin/employees")}
+                onClick={() => router.push("/dashboard")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -321,7 +321,13 @@ export default function EmployeeScreenshotsPage() {
         {/* Timeline View */}
         {!isLoading && data && groups.length > 0 && viewMode === "timeline" && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {groups.flatMap((group) => group.screenshots).map((screenshot) => ScreenshotCard(screenshot, openModal))}
+            {groups.flatMap((group) => group.screenshots).map((screenshot) => 
+               <ScreenshotCard
+                  key={crypto.randomUUID()}
+                  screenshot={screenshot}
+                  openModal={openModal}
+               />
+            )}
           </div>
         )}
 
@@ -358,7 +364,13 @@ export default function EmployeeScreenshotsPage() {
                   {isExpanded && (
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {groups.flatMap((group) => group.screenshots.map((screenshot) => ScreenshotCard(screenshot, openModal)))}
+                        {groups.flatMap((group) => group.screenshots.map((screenshot) => 
+                           <ScreenshotCard
+                              key={crypto.randomUUID()}
+                              screenshot={screenshot}
+                              openModal={openModal}
+                           />
+                        ))}
                       </div>
                     </div>
                   )}
@@ -399,7 +411,13 @@ export default function EmployeeScreenshotsPage() {
                   {isExpanded && (
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        {group.screenshots.map((screenshot) => ScreenshotCard(screenshot, openModal))}
+                        {group.screenshots.map((screenshot) => 
+                           <ScreenshotCard
+                              key={crypto.randomUUID()}
+                              screenshot={screenshot}
+                              openModal={openModal}
+                           />
+                        )}
                       </div>
                     </div>
                   )}
@@ -422,7 +440,7 @@ export default function EmployeeScreenshotsPage() {
             </button>
 
             <div className="absolute -top-12 left-0 text-white text-sm">
-              <p>{format(new Date(modalScreenshot.captureTime), "MMMM d, yyyy 'at' HH:mm:ss")}</p>
+              <p>{format(new Date(modalScreenshot.capturedAt), "MMMM d, yyyy 'at' HH:mm:ss")}</p>
             </div>
 
             <div className="bg-white rounded-lg overflow-hidden relative h-[80vh]">

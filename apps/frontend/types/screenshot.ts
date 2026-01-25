@@ -1,7 +1,7 @@
 export interface Screenshot {
   id: number;
   filePath: string;
-  captureTime: string;
+  capturedAt: string;
 }
 
 export interface PaginationMeta {

@@ -20,7 +20,6 @@ export const screenshotService = {
     employeeId: number,
     date: string
   ) {
-   console.log(employeeId, date)
     const response = await api.get<ScreenshotGroupedResponse>("/api/admin/screenshots/grouped", {
       params: { employeeId, date },
     });
