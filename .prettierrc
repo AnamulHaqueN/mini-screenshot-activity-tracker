@@ -1,0 +1,19 @@
+{
+  "tabWidth": 3,
+  "singleQuote": false,
+  "bracketSameLine": true,
+  "printWidth": 90,
+  "endOfLine": "auto",
+  "arrowParens": "avoid",
+  "trailingComma": "es5",
+  "semi": false,
+  "bracketSpacing": false,
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ],
+  "tailwindFunctions": [
+    "cn",
+    "clsx",
+    "cva"
+  ]
+}
