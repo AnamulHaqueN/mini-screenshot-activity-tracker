@@ -184,22 +184,10 @@ export default function Employees() {
                            <span className="cursor-pointer">View</span>
                            </button>
                            <button
-                              onClick={() =>
-                                 handleDeleteEmployee(employee.id, employee.name)
-                              }
-                              //   disabled={deleteLoading === employee.id}
-                              className="inline-flex items-center gap-1 text-red-600 hover:text-red-900 disabled:opacity-50"
+                              onClick={() => handleDeleteEmployee(employee.id, employee.name)}
+                              className="inline-flex items-center gap-1 text-red-600 hover:text-red-900 mr-4"
                            >
-                           {/* {deleteLoading === employee.id ? (
-                              <>
-                                 <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                                 <span>Deleting...</span>
-                              </>
-                           ) : (
-                              <>
-                                 <span className="cursor-pointer">Delete</span>
-                              </>
-                           )} */}
+                           <span className="cursor-pointer">Delete</span>
                            </button>
                         </td>
                      </tr>
