@@ -8,6 +8,7 @@ import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/emp
 import { useDebounce } from "@/hooks/useDebounce";
 import AddEmployeeModal from "./AddEmployee";
 import { useRouter } from "next/navigation";
+import { Employee } from "@/types/employee";
 
 
 export default function Employees() {
@@ -15,14 +16,17 @@ export default function Employees() {
    const [isModalOpen, setIsModalOpen] = useState(false);
    const debouncedSearch = useDebounce(searchTerm, 500);
    const { mutateAsync: deleteEmployee } = useDeleteEmployee();
+   const [pageNumber, setPageNumber] = useState(1);
+   
 
    const router = useRouter();
 
-   const { data: allEmployees = [], isPending } = useEmployee();
+   const { data: allEmployees, isPending } = useEmployee(pageNumber);
    const { data: searchedEmployees = [], refetch, isFetching: isSearching, error, isPending: pending } = useSearchEmployee(debouncedSearch);
-   
-   const employees = !pending ? searchedEmployees : allEmployees;
+   console.log(allEmployees?.data)
+   const employees = !pending ? searchedEmployees : allEmployees?.data;
    const isLoading = isPending || isSearching;
+   const meta = allEmployees?.meta;
 
    const handleClearSearch = () => {
          setSearchTerm("");
@@ -89,7 +93,7 @@ export default function Employees() {
             </div>
          )}
 
-         {!isLoading && employees.length === 0 && (
+         {!isLoading && employees?.length === 0 && (
             <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -133,7 +137,7 @@ export default function Employees() {
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                     {employees.map((employee) => (
+                     {employees?.map((employee) => (
                      <tr
                         key={employee.id}
                         className="hover:bg-gray-50 transition"
@@ -206,6 +210,41 @@ export default function Employees() {
                refetch()
             }}
          />
+
+         <div className="flex items-center justify-center gap-2 mt-6">
+         {/* Prev */}
+         <button
+            disabled={pageNumber === 1}
+            onClick={() => setPageNumber((prev: number) => prev - 1)}
+            className={`px-4 py-2 rounded-md border text-sm font-medium transition
+               ${
+               pageNumber === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white hover:bg-blue-50 text-blue-600 border-blue-300"
+               }`}
+         >
+            ← Prev
+         </button>
+
+         {/* Current Page */}
+         <span className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-semibold">
+            {pageNumber}
+         </span>
+
+         {/* Next */}
+         <button
+            disabled={pageNumber === meta?.lastPage || isPending}
+            onClick={() => setPageNumber((prev: number) => prev + 1)}
+            className={`px-4 py-2 rounded-md border text-sm font-medium transition
+               ${
+               pageNumber === meta?.lastPage || isPending
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white hover:bg-blue-50 text-blue-600 border-blue-300"
+               }`}
+            >
+            Next →
+         </button>
+         </div>
       </div>
    );
 }
