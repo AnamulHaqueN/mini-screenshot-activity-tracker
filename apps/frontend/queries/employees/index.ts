@@ -3,10 +3,10 @@ import { Employee } from "@/types/employee";
 import { ApiError } from "@/types/error";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useEmployee = () => {
+export const useEmployee = (pageNumber: number) => {
   return useQuery({
-    queryKey: ["employee"],
-    queryFn: employeeService.getEmployees,
+    queryKey: ["employee", pageNumber],
+    queryFn: () => employeeService.getEmployees(pageNumber),
     retry: false,
     staleTime: 5 * 60 * 1000, // for 5 min no API call
   });

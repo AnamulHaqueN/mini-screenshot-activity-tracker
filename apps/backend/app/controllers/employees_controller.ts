@@ -4,15 +4,22 @@ import { addEmployeeValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class EmployeesController {
-   async index({ auth, response }: HttpContext) {
+   async index({ auth, response, request }: HttpContext) {
       const user = auth.getUserOrFail()
+
+      const page = Number(request.input('page', 1))
+      const limit = 10
 
       const employees = await User.query()
          .where('company_id', user.companyId)
          .where('role', 'employee')
          .orderBy('name', 'asc')
+         .paginate(page, limit)
 
-      return response.ok({ data: await EmployeeService.stats(employees) })
+      return response.ok({
+         data: await EmployeeService.stats(employees),
+         meta: employees.getMeta(),
+      })
    }
 
    /**

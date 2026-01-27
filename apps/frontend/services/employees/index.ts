@@ -1,10 +1,10 @@
 import api from "@/http/axios";
-import { Employee, CreateEmployee } from "@/types/employee";
+import { Employee, CreateEmployee, PaginatedResponse } from "@/types/employee";
 
 export const employeeService = {
-  async getEmployees(): Promise<Employee[]> {
-    const response = await api.get("/api/admin/employees");
-    return response.data.data;
+  async getEmployees(page: number): Promise<PaginatedResponse<Employee>> {
+    const response = await api.get(`/api/admin/employees?page=${page}`);
+    return response.data;
   },
 
   async addEmployee(data: CreateEmployee) {

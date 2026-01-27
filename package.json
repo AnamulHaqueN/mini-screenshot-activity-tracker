@@ -18,6 +18,7 @@
     "pnpm": ">=10"
   },
   "dependencies": {
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "jose": "^6.1.3"
   }
 }
