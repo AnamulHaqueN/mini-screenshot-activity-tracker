@@ -5,10 +5,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("jwt_token")?.value;
-  console.log("token", token);
+  //console.log("token", token);
 
   const encodedRole = request.cookies.get('role')?.value;
-  console.log("encodedRole", encodedRole);
+  //console.log("encodedRole", encodedRole);
   
   let role: string | null = null;
   
@@ -27,8 +27,8 @@ export async function middleware(request: NextRequest) {
       // Parse the JSON
       const roleData = JSON.parse(decodedJson);
       
-      console.log("roleData is: ", roleData); 
-      console.log("roleData.message", roleData.message);
+      // console.log("roleData is: ", roleData); 
+      // console.log("roleData.message", roleData.message);
       role = roleData.message;
     } catch (error) {
       console.error("Error decoding role:", error);
@@ -37,6 +37,16 @@ export async function middleware(request: NextRequest) {
 
   // If user is logged in and tries to access /login, redirect based on role
   if (token && pathname === "/login") {
+    if (role === "employee") {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
+    if (role === "admin" || role === "owner") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
+  // If user is logged in and tries to access /register, redirect based on role
+  if (token && pathname === "/register") {
     if (role === "employee") {
       return NextResponse.redirect(new URL("/screenshots", request.url));
     }
@@ -64,5 +74,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login", "/register"],
 };
