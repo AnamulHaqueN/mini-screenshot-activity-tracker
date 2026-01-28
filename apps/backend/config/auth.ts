@@ -19,19 +19,19 @@ import type { InferAuthenticators, InferAuthEvents, Authenticators } from '@adon
 // })
 
 const jwtConfig = {
-  secret: env.get('APP_KEY'),
+   secret: env.get('APP_KEY'),
 }
 const userProvider = sessionUserProvider({
-  model: () => import('#models/user'),
+   model: () => import('#models/user'),
 })
 
 const authConfig = defineConfig({
-  default: 'jwt',
-  guards: {
-    jwt: (ctx) => {
-      return new JwtGuard(ctx, userProvider, jwtConfig)
-    },
-  },
+   default: 'jwt',
+   guards: {
+      jwt: (ctx) => {
+         return new JwtGuard(ctx, userProvider, jwtConfig)
+      },
+   },
 })
 
 export default authConfig
@@ -41,8 +41,8 @@ export default authConfig
  * guards.
  */
 declare module '@adonisjs/auth/types' {
-  export interface Authenticators extends InferAuthenticators<typeof authConfig> {}
+   export interface Authenticators extends InferAuthenticators<typeof authConfig> {}
 }
 declare module '@adonisjs/core/types' {
-  interface EventsList extends InferAuthEvents<Authenticators> {}
+   interface EventsList extends InferAuthEvents<Authenticators> {}
 }
