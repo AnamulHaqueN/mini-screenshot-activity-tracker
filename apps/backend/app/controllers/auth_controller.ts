@@ -25,11 +25,11 @@ export default class AuthController {
          email: data.ownerEmail,
          password: data.password,
          companyId: company.id,
-         role: 'admin',
+         role: 'owner',
          // isActive: true,
       })
 
-      /**
+      /**chanel71@yahoo.com
        * Ignore access token creation in the time of registration
        * Token will be generated in login time
        */
