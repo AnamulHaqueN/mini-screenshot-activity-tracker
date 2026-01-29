@@ -61,10 +61,6 @@ export default class AuthController {
       }
 
       const isPasswordValid = await hash.verify(user.password, password)
-      const newPassword = await hash.make(password)
-      const isMatch = newPassword == user.password ? 1 : 0
-      console.log('check match or not', isMatch)
-      console.log('hash password', user.password)
       if (!isPasswordValid) {
          return response.unauthorized({ message: 'Invalid credentials' })
       }
