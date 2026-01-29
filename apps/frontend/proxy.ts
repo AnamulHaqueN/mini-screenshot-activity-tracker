@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -34,41 +34,36 @@ export async function proxy(request: NextRequest) {
       console.error("Error decoding role:", error);
     }
   }
-
-  // If user is logged in and tries to access /login, redirect based on role
-  if (token && pathname === "/login") {
-    if (role === "employee") {
-      return NextResponse.redirect(new URL("/screenshots", request.url));
-    }
-    if (role === "admin" || role === "owner") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
-
-  // If user is logged in and tries to access /register, redirect based on role
-  if (token && pathname === "/register") {
-    if (role === "employee") {
-      return NextResponse.redirect(new URL("/screenshots", request.url));
-    }
-    if (role === "admin" || role === "owner") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
-
-  // Not logged in - redirect to login
-  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
+ 
+  if(!role && (pathname.startsWith("/screenshots") || (pathname.startsWith("/dashboard")))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  // Admin/Owner trying to access employee-only page
-  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  
+  // If user is logged in and tries to access /login or register, redirect based on role
+  if (role && (pathname === "/login" || pathname === "/register")) {
+    if (role === "employee") {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
+    if (role === "admin" || role === "owner") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
+  
+  // Not logged in - redirect to login
+  // if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
+    //   return NextResponse.redirect(new URL("/login", request.url));
+    // }
+    
+    // Admin/Owner trying to access employee-only page
+    if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    
+    // Employee trying to access admin-only page
+    if (role === "employee" && pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
 
-  // Employee trying to access admin-only page
-  if (role === "employee" && pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/screenshots", request.url));
-  }
 
   return NextResponse.next();
 }
