@@ -129,6 +129,7 @@ export default class AuthController {
 
    async logout({ auth, response }: HttpContext) {
       response.clearCookie('jwt_token')
+      response.clearCookie('role')
       await auth.use('web').logout()
 
       return response.ok({ message: 'Logout successful' })

@@ -30,40 +30,36 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // If user is logged in and tries to access /login, redirect based on role
-//   if (pathname === "/login") {
-//     if (role === "employee") {
-//       return NextResponse.redirect(new URL("/screenshots", request.url));
-//     }
-//     if (role === "admin" || role === "owner") {
-//       return NextResponse.redirect(new URL("/dashboard", request.url));
-//     }
-//   }
+  if (token) {
+   handleTokenBasedRouting(token, role!, pathname, request)
+   return NextResponse.next();
+}
+// // Not logged in - redirect to login
+// if (!role) {
+//   return NextResponse.redirect(new URL("/", request.url));
+// }
 
-  // If user is logged in and tries to access /register, redirect based on role
-//   if (pathname === "/register") {
-//     if (role === "employee") {
-//       return NextResponse.redirect(new URL("/screenshots", request.url));
-//     }
-//     if (role === "admin" || role === "owner") {
-//       return NextResponse.redirect(new URL("/dashboard", request.url));
-//     }
-//   }
+  // Now session based auth is being used
+  // If user is logged in and tries to access /login or /register, redirect based on role
+  if (pathname === "/login" || pathname === "/register") {
+    if (role === "employee") {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
+    if (role === "admin" || role === "owner") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
 
-  // Not logged in - redirect to login
-//   if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
-//     return NextResponse.redirect(new URL("/login", request.url));
-//   }
 
   // Admin/Owner trying to access employee-only page
-//   if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
-//     return NextResponse.redirect(new URL("/dashboard", request.url));
-//   }
+  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   // Employee trying to access admin-only page
-//   if (role === "employee" && pathname.startsWith("/dashboard")) {
-//     return NextResponse.redirect(new URL("/screenshots", request.url));
-//   }
+  if (role === "employee" && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/screenshots", request.url));
+  }
 
   return NextResponse.next();
 }
@@ -71,3 +67,29 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login", "/register"],
 };
+
+function handleTokenBasedRouting(token: string, role: string, pathname: string, request: NextRequest) {
+   if (token && (pathname === "/login" || pathname === "/register")) {
+    if (role === "employee") {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
+    if (role === "admin" || role === "owner") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
+  // Not logged in - redirect to login
+  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Admin/Owner trying to access employee-only page
+  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Employee trying to access admin-only page
+  if (role === "employee" && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/screenshots", request.url));
+  }
+}
