@@ -34,19 +34,15 @@ export async function proxy(request: NextRequest) {
    handleTokenBasedRouting(token, role!, pathname, request)
    return NextResponse.next();
 }
-// // Not logged in - redirect to login
-// if (!role) {
-//   return NextResponse.redirect(new URL("/", request.url));
-// }
 
   // Now session based auth is being used
   // If user is logged in and tries to access /login or /register, redirect based on role
   if (pathname === "/login" || pathname === "/register") {
+     if (role === "admin" || role === "owner") {
+       return NextResponse.redirect(new URL("/dashboard", request.url));
+     }
     if (role === "employee") {
       return NextResponse.redirect(new URL("/screenshots", request.url));
-    }
-    if (role === "admin" || role === "owner") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
@@ -59,6 +55,12 @@ export async function proxy(request: NextRequest) {
   // Employee trying to access admin-only page
   if (role === "employee" && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/screenshots", request.url));
+  }
+
+  if (!role) {
+   if (pathname !== "/login" && pathname !== '/register') {
+      return NextResponse.redirect(new URL("/login", request.url));
+   }
   }
 
   return NextResponse.next();
