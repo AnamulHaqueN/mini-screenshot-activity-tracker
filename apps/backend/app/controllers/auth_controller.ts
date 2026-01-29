@@ -61,6 +61,10 @@ export default class AuthController {
       }
 
       const isPasswordValid = await hash.verify(user.password, password)
+      const newPassword = await hash.make(password)
+      const isMatch = newPassword == user.password ? 1 : 0
+      console.log('check match or not', isMatch)
+      console.log('hash password', user.password)
       if (!isPasswordValid) {
          return response.unauthorized({ message: 'Invalid credentials' })
       }
@@ -129,8 +133,8 @@ export default class AuthController {
 
    async logout({ auth, response }: HttpContext) {
       response.clearCookie('jwt_token')
+      auth.use('web').logout()
       response.clearCookie('role')
-      await auth.use('web').logout()
 
       return response.ok({ message: 'Logout successful' })
    }

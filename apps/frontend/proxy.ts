@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -29,6 +29,13 @@ export async function proxy(request: NextRequest) {
       console.error("Error decoding role:", error);
     }
   }
+ 
+  if(!role && (pathname.startsWith("/screenshots") || (pathname.startsWith("/dashboard")))) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  
+  // If user is logged in and tries to access /login or register, redirect based on role
+  if (role && (pathname === "/login" || pathname === "/register")) {
 
   if (token) {
    handleTokenBasedRouting(token, role!, pathname, request)
@@ -79,17 +86,29 @@ function handleTokenBasedRouting(token: string, role: string, pathname: string, 
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
-
+  
   // Not logged in - redirect to login
-  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
+    //   return NextResponse.redirect(new URL("/login", request.url));
+    // }
+    
+    // Admin/Owner trying to access employee-only page
+    if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    
+    // Employee trying to access admin-only page
+    if (role === "employee" && pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
 
-  // Admin/Owner trying to access employee-only page
-  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
 
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login", "/register"],
+};
   // Employee trying to access admin-only page
   if (role === "employee" && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/screenshots", request.url));
