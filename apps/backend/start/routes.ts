@@ -18,8 +18,8 @@ const PlansController = () => import('#controllers/plans_controller')
 router
    .group(() => {
       router.get('/plans', [PlansController, 'index'])
-      router.post('/auth/register', [AuthController, 'registerCompany'])
-      router.post('/auth/login', [AuthController, 'login'])
+      router.post('/auth/register', [AuthController, 'register'])
+      router.post('/auth/login', [AuthController, 'loginWithSessionGuard'])
    })
    .prefix('/api')
 
@@ -30,7 +30,7 @@ router
       router.delete('/auth/logout', [AuthController, 'logout'])
       router.get('/auth/me', [AuthController, 'me'])
 
-      // Employee routes (owner only)
+      // Employee routes (owner or admin only)
       router
          .group(() => {
             router.get('/employees', [EmployeesController, 'index'])
@@ -55,4 +55,8 @@ router
          .use(middleware.role(['employee']))
    })
    .prefix('/api')
-   .use(middleware.auth())
+   .use(
+      middleware.auth({
+         guards: ['jwt', 'web'],
+      })
+   )

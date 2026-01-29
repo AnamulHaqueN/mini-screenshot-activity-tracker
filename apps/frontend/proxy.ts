@@ -5,10 +5,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("jwt_token")?.value;
-  //console.log("token", token);
-
   const encodedRole = request.cookies.get('role')?.value;
-  //console.log("encodedRole", encodedRole);
   
   let role: string | null = null;
   
@@ -26,9 +23,7 @@ export async function proxy(request: NextRequest) {
       
       // Parse the JSON
       const roleData = JSON.parse(decodedJson);
-      
-      // console.log("roleData is: ", roleData); 
-      // console.log("roleData.message", roleData.message);
+
       role = roleData.message;
     } catch (error) {
       console.error("Error decoding role:", error);
@@ -36,39 +31,39 @@ export async function proxy(request: NextRequest) {
   }
 
   // If user is logged in and tries to access /login, redirect based on role
-  if (token && pathname === "/login") {
-    if (role === "employee") {
-      return NextResponse.redirect(new URL("/screenshots", request.url));
-    }
-    if (role === "admin" || role === "owner") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
+//   if (pathname === "/login") {
+//     if (role === "employee") {
+//       return NextResponse.redirect(new URL("/screenshots", request.url));
+//     }
+//     if (role === "admin" || role === "owner") {
+//       return NextResponse.redirect(new URL("/dashboard", request.url));
+//     }
+//   }
 
   // If user is logged in and tries to access /register, redirect based on role
-  if (token && pathname === "/register") {
-    if (role === "employee") {
-      return NextResponse.redirect(new URL("/screenshots", request.url));
-    }
-    if (role === "admin" || role === "owner") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
+//   if (pathname === "/register") {
+//     if (role === "employee") {
+//       return NextResponse.redirect(new URL("/screenshots", request.url));
+//     }
+//     if (role === "admin" || role === "owner") {
+//       return NextResponse.redirect(new URL("/dashboard", request.url));
+//     }
+//   }
 
   // Not logged in - redirect to login
-  if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+//   if (!token && (pathname.startsWith("/dashboard") || pathname.startsWith("/screenshots"))) {
+//     return NextResponse.redirect(new URL("/login", request.url));
+//   }
 
   // Admin/Owner trying to access employee-only page
-  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+//   if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+//     return NextResponse.redirect(new URL("/dashboard", request.url));
+//   }
 
   // Employee trying to access admin-only page
-  if (role === "employee" && pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/screenshots", request.url));
-  }
+//   if (role === "employee" && pathname.startsWith("/dashboard")) {
+//     return NextResponse.redirect(new URL("/screenshots", request.url));
+//   }
 
   return NextResponse.next();
 }
