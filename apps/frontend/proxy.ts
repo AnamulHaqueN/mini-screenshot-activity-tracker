@@ -5,10 +5,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("jwt_token")?.value;
-  //console.log("token", token);
-
   const encodedRole = request.cookies.get('role')?.value;
-  //console.log("encodedRole", encodedRole);
   
   let role: string | null = null;
   
@@ -26,9 +23,7 @@ export async function proxy(request: NextRequest) {
       
       // Parse the JSON
       const roleData = JSON.parse(decodedJson);
-      
-      // console.log("roleData is: ", roleData); 
-      // console.log("roleData.message", roleData.message);
+
       role = roleData.message;
     } catch (error) {
       console.error("Error decoding role:", error);
@@ -41,6 +36,49 @@ export async function proxy(request: NextRequest) {
   
   // If user is logged in and tries to access /login or register, redirect based on role
   if (role && (pathname === "/login" || pathname === "/register")) {
+
+  if (token) {
+   handleTokenBasedRouting(token, role!, pathname, request)
+   return NextResponse.next();
+}
+
+  // Now session based auth is being used
+  // If user is logged in and tries to access /login or /register, redirect based on role
+  if (pathname === "/login" || pathname === "/register") {
+     if (role === "admin" || role === "owner") {
+       return NextResponse.redirect(new URL("/dashboard", request.url));
+     }
+    if (role === "employee") {
+      return NextResponse.redirect(new URL("/screenshots", request.url));
+    }
+  }
+
+
+  // Admin/Owner trying to access employee-only page
+  if ((role === "admin" || role === "owner") && pathname.startsWith("/screenshots")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Employee trying to access admin-only page
+  if (role === "employee" && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/screenshots", request.url));
+  }
+
+  if (!role) {
+   if (pathname !== "/login" && pathname !== '/register') {
+      return NextResponse.redirect(new URL("/login", request.url));
+   }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login", "/register"],
+};
+
+function handleTokenBasedRouting(token: string, role: string, pathname: string, request: NextRequest) {
+   if (token && (pathname === "/login" || pathname === "/register")) {
     if (role === "employee") {
       return NextResponse.redirect(new URL("/screenshots", request.url));
     }
@@ -71,3 +109,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/dashboard/:path*", "/screenshots/:path*", "/login", "/register"],
 };
+  // Employee trying to access admin-only page
+  if (role === "employee" && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/screenshots", request.url));
+  }
+}

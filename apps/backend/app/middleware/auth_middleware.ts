@@ -29,10 +29,11 @@ export default class AuthMiddleware {
          await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
       } catch (error) {
          ctx.response.clearCookie('jwt_token')
+         ctx.response.clearCookie('role')
          ctx.auth.use('web').logout()
          return ctx.response.unauthorized({
             error: 'Authentication failed',
-            message: 'Invalid or Expired token',
+            // message: 'Invalid or Expired token',
          })
       }
       return next()

@@ -7,13 +7,11 @@ import hash from '@adonisjs/core/services/hash'
 import { cookieConfig } from '../helper/jwt_cookie.js'
 
 export default class AuthController {
-   async registerCompany({ request, response }: HttpContext) {
+   async register({ request, response }: HttpContext) {
       const data = await request.validateUsing(registerCompanyValidator)
 
-      //check if plan exists
       const plan = await Plan.findOrFail(data.planId)
 
-      // Create Company
       const company = await Company.create({
          name: data.companyName,
          planId: plan.id,
@@ -26,14 +24,12 @@ export default class AuthController {
          password: data.password,
          companyId: company.id,
          role: 'admin',
-         // isActive: true,
       })
 
       /**
        * Ignore access token creation in the time of registration
        * Token will be generated in login time
        */
-      // Generate JWT token
       //  const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
 
       return response.created({
@@ -50,22 +46,20 @@ export default class AuthController {
                email: owner.email,
                role: owner.role,
             },
-            //   token: token.value!.release(),
+            // token: token.value!.release(),
          },
       })
    }
 
-   async loginWithJWT({ auth, request, response }: HttpContext) {
+   async loginWithJwt({ auth, request, response }: HttpContext) {
       const { email, password } = await request.validateUsing(loginValidator)
 
-      // Find user
       const user = await User.query().where('email', email).first()
 
       if (!user) {
          return response.unauthorized({ message: 'Please enter valid email and password' })
       }
 
-      // Verify password
       const isPasswordValid = await hash.verify(user.password, password)
       const newPassword = await hash.make(password)
       const isMatch = newPassword == user.password ? 1 : 0
@@ -79,6 +73,8 @@ export default class AuthController {
 
       const token = await auth.use('jwt').generate(user)
       response.cookie('jwt_token', token.token, cookieConfig())
+
+      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
       response.plainCookie('role', user.role, {
          httpOnly: true,
       })
@@ -97,30 +93,30 @@ export default class AuthController {
       })
    }
 
-   async login({ auth, request, response }: HttpContext) {
+   /**
+    * session based login
+    */
+   async loginWithSessionGuard({ auth, request, response }: HttpContext) {
       const { email, password } = await request.validateUsing(loginValidator)
 
-      // Find user
       const user = await User.query().where('email', email).first()
 
       if (!user) {
          return response.unauthorized({ message: 'Please enter valid email and password' })
       }
 
-      // Verify password
       const isPasswordValid = await hash.verify(user.password, password)
-
       if (!isPasswordValid) {
          return response.unauthorized({ message: 'Invalid credentials' })
       }
 
-      // const token = await User.accessTokens.create(user, ['*'], { expiresIn: '7 days' })
-
+      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
       response.plainCookie('role', user.role, {
          httpOnly: true,
       })
 
       await auth.use('web').login(user)
+
       return response.ok({
          message: 'Login successful',
          data: {
@@ -134,6 +130,7 @@ export default class AuthController {
          },
       })
    }
+
    async logout({ auth, response }: HttpContext) {
       response.clearCookie('jwt_token')
       auth.use('web').logout()
