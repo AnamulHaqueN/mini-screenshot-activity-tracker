@@ -1,0 +1,29 @@
+services:
+  # Frontend Application (Development with Hot Reload)
+  frontend:
+    image: node:20-alpine
+    container_name: screenshot-tracker-frontend-dev
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm install && pnpm run dev"
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      TZ: ${TZ:-UTC}
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3333}
+      # Next.js specific settings
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING:-false}
+    networks:
+      - frontend-network
+    volumes:
+      # Mount ONLY the frontend directory
+      - .:/app
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+      # Mount .next for hot reload
+      - /app/.next
+
+networks:
+  frontend-network:
+    driver: bridge
