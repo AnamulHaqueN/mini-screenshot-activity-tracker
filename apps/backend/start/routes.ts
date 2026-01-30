@@ -19,7 +19,7 @@ router
    .group(() => {
       router.get('/plans', [PlansController, 'index'])
       router.post('/auth/register', [AuthController, 'register'])
-      router.post('/auth/login', [AuthController, 'loginWithSessionGuard'])
+      router.post('/auth/login', [AuthController, 'login'])
    })
    .prefix('/api')
 

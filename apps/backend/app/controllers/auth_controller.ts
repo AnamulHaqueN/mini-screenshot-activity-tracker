@@ -51,48 +51,7 @@ export default class AuthController {
       })
    }
 
-   async loginWithJwt({ auth, request, response }: HttpContext) {
-      const { email, password } = await request.validateUsing(loginValidator)
-
-      const user = await User.query().where('email', email).first()
-
-      if (!user) {
-         return response.unauthorized({ message: 'Please enter valid email and password' })
-      }
-
-      const isPasswordValid = await hash.verify(user.password, password)
-      if (!isPasswordValid) {
-         return response.unauthorized({ message: 'Invalid credentials' })
-      }
-
-      // const token = await User.accessTokens.create(user, ['*'], { expiresIn: '7 days' })
-
-      const token = await auth.use('jwt').generate(user)
-      response.cookie('jwt_token', token.token, cookieConfig())
-
-      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
-      response.plainCookie('role', user.role, {
-         httpOnly: true,
-      })
-
-      return response.ok({
-         message: 'Login successful',
-         data: {
-            user: {
-               id: user.id,
-               name: user.name,
-               email: user.email,
-               role: user.role,
-               companyId: user.companyId,
-            },
-         },
-      })
-   }
-
-   /**
-    * session based login
-    */
-   async loginWithSessionGuard({ auth, request, response }: HttpContext) {
+   async login({ auth, request, response }: HttpContext) {
       const { email, password } = await request.validateUsing(loginValidator)
 
       const user = await User.query().where('email', email).first()
@@ -112,6 +71,9 @@ export default class AuthController {
       })
 
       await auth.use('web').login(user)
+
+      const token = await auth.use('jwt').generate(user)
+      response.cookie('jwt_token', token.token, cookieConfig())
 
       return response.ok({
          message: 'Login successful',
