@@ -63,12 +63,6 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/screenshots", request.url))
    }
 
-   // if (!role) {
-   //  if (pathname !== "/login" && pathname !== '/register') {
-   //     return NextResponse.redirect(new URL("/login", request.url));
-   //  }
-   // }
-
    return NextResponse.next()
 }
 
