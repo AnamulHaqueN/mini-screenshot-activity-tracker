@@ -8,10 +8,9 @@ export default class extends BaseSchema {
          table.increments('id').primary()
          table.string('name', 255).notNullable()
          table.string('email', 255).notNullable()
-         table.boolean('is_active').notNullable().defaultTo(true)
          table.string('password', 255).notNullable()
          table.integer('company_id').unsigned().notNullable()
-         table.enum('role', ['owner', 'employee']).notNullable()
+         table.enum('role', ['admin', 'owner', 'employee']).notNullable()
          table.timestamp('created_at').notNullable().defaultTo(this.now())
          table.timestamp('updated_at').notNullable().defaultTo(this.now())
 

@@ -9,7 +9,8 @@ export default class extends BaseSchema {
          table.text('file_path').notNullable()
          table.integer('user_id').unsigned().notNullable()
          table.integer('company_id').unsigned().notNullable()
-         table.timestamp('capture_time').notNullable()
+         table.string('captured_at')
+         table.string('uploaded_at')
 
          table.timestamp('created_at').notNullable().defaultTo(this.now())
 
@@ -18,10 +19,8 @@ export default class extends BaseSchema {
 
          // Critical indexes for performance with 1M+ records
 
-         table.index(['user_id', 'capture_time'], 'idx_user_capture_time')
-         table.index(['company_id', 'capture_time'], 'idx_company_capture_time')
-
-         table.index('capture_time')
+         table.index(['user_id', 'captured_at'], 'idx_user_captured_at')
+         table.index(['company_id', 'captured_at'], 'idx_company_captured_at')
       })
    }
 
