@@ -73,7 +73,7 @@ export default class AuthController {
       await auth.use('web').login(user)
 
       const token = await auth.use('jwt').generate(user)
-      response.cookie('jwt_token', token.token, cookieConfig())
+      response.cookie('token', token.token, cookieConfig())
 
       return response.ok({
          message: 'Login successful',

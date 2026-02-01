@@ -4,7 +4,7 @@ import {NextRequest} from "next/server"
 export async function proxy(request: NextRequest) {
    const {pathname} = request.nextUrl
 
-   const token = request.cookies.get("jwt_token")?.value
+   const token = request.cookies.get("token")?.value
    const encodedRole = request.cookies.get("role")?.value
 
    let role: string | null = null
@@ -23,7 +23,6 @@ export async function proxy(request: NextRequest) {
 
          // Parse the JSON
          const roleData = JSON.parse(decodedJson)
-
          role = roleData.message
       } catch (error) {
          console.error("Error decoding role:", error)
