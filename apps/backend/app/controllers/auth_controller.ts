@@ -5,6 +5,7 @@ import { loginValidator, registerCompanyValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import { cookieConfig } from '../helper/jwt_cookie.js'
+import env from '#start/env'
 
 export default class AuthController {
    async register({ request, response }: HttpContext) {
@@ -68,6 +69,7 @@ export default class AuthController {
       // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
       response.plainCookie('role', user.role, {
          httpOnly: true,
+         maxAge: env.get('SESSION_MAX_AGE'),
       })
 
       await auth.use('web').login(user)
