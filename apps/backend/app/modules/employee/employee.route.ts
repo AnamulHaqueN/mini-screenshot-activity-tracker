@@ -19,3 +19,4 @@ router
          guards: ['jwt', 'web'],
       })
    )
+   .use(middleware.role(['owner', 'admin']))
