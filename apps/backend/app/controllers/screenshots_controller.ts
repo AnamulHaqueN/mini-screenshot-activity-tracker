@@ -1,7 +1,11 @@
 import cloudinary from '#config/cloudinary'
 import Screenshot from '#models/screenshot'
 import User from '#models/user'
-import { getScreenshotsValidator, uploadScreenshotValidator } from '#validators/screenshot'
+import {
+   getScreenshotsValidator,
+   groupedScreenshotsValidator,
+   uploadScreenshotValidator,
+} from '#validators/screenshot'
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
@@ -11,11 +15,6 @@ export default class ScreenshotsController {
     */
    async upload({ auth, request, response }: HttpContext) {
       const user = auth.getUserOrFail()
-
-      //  if (!user.isActive) {
-      //    return response.forbidden({ message: 'Your account is inactive' })
-      //  }
-
       const { screenshot } = await request.validateUsing(uploadScreenshotValidator)
 
       try {
@@ -124,7 +123,7 @@ export default class ScreenshotsController {
       const user = await auth.getUserOrFail()
 
       const employeeId = Number(request.input('employeeId'))
-      const dateString = request.input('date')
+      const { date: dateString } = await request.validateUsing(groupedScreenshotsValidator)
 
       if (!employeeId || !dateString) {
          return response.badRequest({
