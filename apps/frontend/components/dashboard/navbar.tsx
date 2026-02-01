@@ -22,11 +22,7 @@ export default function Navbar() {
    }
 
    const handleDashboard = () => {
-      if (user?.role === "admin" || user?.role === "owner") {
-         router.push("/dashboard")
-      } else if (user?.role === "employee") {
-         router.push("/screenshots")
-      }
+      router.push("/")
    }
 
    return (
