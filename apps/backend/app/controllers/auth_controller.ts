@@ -1,7 +1,7 @@
 import Company from '#models/company'
 import Plan from '#models/plan'
 import User from '#models/user'
-import { loginValidator, registerCompanyValidator } from '#validators/auth'
+import { loginValidator, signUpValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import { cookieConfig } from '../helper/jwt_cookie.js'
@@ -9,7 +9,7 @@ import env from '#start/env'
 
 export default class AuthController {
    async register({ request, response }: HttpContext) {
-      const data = await request.validateUsing(registerCompanyValidator)
+      const data = await request.validateUsing(signUpValidator)
 
       const plan = await Plan.findOrFail(data.planId)
 
