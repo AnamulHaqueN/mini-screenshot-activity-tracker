@@ -1,5 +1,5 @@
 import User from '#models/user'
-import { EmployeeService } from '#services/employee_service'
+import { EmployeeService } from '#modules/employee/employee.service'
 import { addEmployeeValidator } from '#modules/employee/employee.validator'
 import type { HttpContext } from '@adonisjs/core/http'
 
