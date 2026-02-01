@@ -38,8 +38,7 @@ export async function proxy(request: NextRequest) {
    }
 
    if (token) {
-      handleTokenBasedRouting(token, role!, pathname, request)
-      return NextResponse.next()
+      return handleTokenBasedRouting(token, role!, pathname, request)
    }
 
    // Now session based auth is being used
