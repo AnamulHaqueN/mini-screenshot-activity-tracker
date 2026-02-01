@@ -8,7 +8,7 @@
 */
 
 import router from '@adonisjs/core/services/router'
-import '../app/modules/auth/auth.route.js'
+import '#modules/auth/auth.route'
 
 import { middleware } from './kernel.js'
 import NotFoundException from '#exceptions/not_found_exception'
