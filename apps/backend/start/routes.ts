@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+import NotFoundException from '#exceptions/not_found_exception'
 const AuthController = () => import('#controllers/auth_controller')
 const ScreenshotsController = () => import('#controllers/screenshots_controller')
 const EmployeesController = () => import('#controllers/employees_controller')
@@ -60,3 +61,7 @@ router
          guards: ['jwt', 'web'],
       })
    )
+
+router.any('*', () => {
+   throw new NotFoundException()
+})
