@@ -1,9 +1,9 @@
 import User from '#models/user'
 import { EmployeeService } from '#services/employee_service'
-import { addEmployeeValidator } from '#validators/employee'
+import { addEmployeeValidator } from '#modules/employee/employee.validator'
 import type { HttpContext } from '@adonisjs/core/http'
 
-export default class EmployeesController {
+export default class EmployeeController {
    async index({ auth, response, request }: HttpContext) {
       const user = auth.getUserOrFail()
 

@@ -5,7 +5,7 @@ import {
    getScreenshotsValidator,
    groupedScreenshotsValidator,
    uploadScreenshotValidator,
-} from '#validators/screenshot'
+} from '#modules/screenshots/screenshot.validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 

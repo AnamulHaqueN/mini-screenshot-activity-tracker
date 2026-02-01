@@ -1,13 +1,11 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
-const PlansController = () => import('#controllers/plans_controller')
-const AuthController = () => import('./auth.controller.js')
+const AuthController = () => import('#modules/auth/auth.controller')
 
 // Public routes
 router
    .group(function AuthRoutesCb() {
-      router.get('/plans', [PlansController, 'index'])
       router.post('/auth/register', [AuthController, 'register'])
       router.post('/auth/login', [AuthController, 'login'])
    })
