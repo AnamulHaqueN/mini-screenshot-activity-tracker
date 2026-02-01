@@ -8,29 +8,17 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import '../app/modules/auth/auth.route.js'
+
 import { middleware } from './kernel.js'
 import NotFoundException from '#exceptions/not_found_exception'
-const AuthController = () => import('#controllers/auth_controller')
+
 const ScreenshotsController = () => import('#controllers/screenshots_controller')
 const EmployeesController = () => import('#controllers/employees_controller')
-const PlansController = () => import('#controllers/plans_controller')
-
-// Public routes
-router
-   .group(() => {
-      router.get('/plans', [PlansController, 'index'])
-      router.post('/auth/register', [AuthController, 'register'])
-      router.post('/auth/login', [AuthController, 'login'])
-   })
-   .prefix('/api')
 
 // Protected routes
 router
    .group(() => {
-      // Auth routes
-      router.delete('/auth/logout', [AuthController, 'logout'])
-      router.get('/auth/me', [AuthController, 'me'])
-
       // Employee routes (owner or admin only)
       router
          .group(() => {

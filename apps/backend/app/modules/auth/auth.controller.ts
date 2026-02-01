@@ -4,7 +4,7 @@ import User from '#models/user'
 import { loginValidator, signUpValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
-import { cookieConfig } from '../helper/jwt_cookie.js'
+import { cookieConfig } from '../../helper/jwt_cookie.js'
 import env from '#start/env'
 
 export default class AuthController {
