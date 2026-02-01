@@ -13,7 +13,7 @@ export default function Navbar() {
    const handleLogout = () => {
       logout(undefined, {
          onSuccess: () => {
-            router.push("/login")
+            router.push("/")
          },
       })
    }
