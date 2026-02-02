@@ -17,9 +17,11 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
-         <body>
+         <body className="min-h-screen flex flex-col">
             <QueryProvider>
-               <AuthProvider>{children}</AuthProvider>
+               <AuthProvider>
+                  <main className="flex-1">{children}</main>
+               </AuthProvider>
             </QueryProvider>
             {/* Footer */}
             <footer className="bg-gray-900 text-gray-400 py-12">
