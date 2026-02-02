@@ -6,27 +6,27 @@ import Screenshot from './screenshot.js'
 import User from './user.js'
 
 export default class Company extends BaseModel {
-  @column({ isPrimary: true })
-  declare id: number
+   @column({ isPrimary: true })
+   declare id: number
 
-  @column()
-  declare name: string
+   @column()
+   declare name: string
 
-  @column()
-  declare planId: number
+   @column()
+   declare planId: number
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+   @column.dateTime({ autoCreate: true })
+   declare createdAt: DateTime
 
-  //   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  //   declare updatedAt: DateTime
+   //   @column.dateTime({ autoCreate: true, autoUpdate: true })
+   //   declare updatedAt: DateTime
 
-  @belongsTo(() => Plan)
-  declare plan: BelongsTo<typeof Plan>
+   @belongsTo(() => Plan)
+   declare plan: BelongsTo<typeof Plan>
 
-  @hasMany(() => User)
-  declare users: HasMany<typeof User>
+   @hasMany(() => User)
+   declare users: HasMany<typeof User>
 
-  @hasMany(() => Screenshot)
-  declare screenshots: HasMany<typeof Screenshot>
+   @hasMany(() => Screenshot)
+   declare screenshots: HasMany<typeof Screenshot>
 }
