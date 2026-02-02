@@ -5,15 +5,15 @@ import { symbols } from '@adonisjs/auth'
  * Guard
  */
 export type JwtGuardUser<RealUser> = {
-   /**
-    * Returns the unique ID of the user
-    */
-   getId(): string | number | BigInt
+  /**
+   * Returns the unique ID of the user
+   */
+  getId(): string | number | BigInt
 
-   /**
-    * Returns the original user object
-    */
-   getOriginal(): RealUser
+  /**
+   * Returns the original user object
+   */
+  getOriginal(): RealUser
 }
 
 /**
@@ -21,20 +21,20 @@ export type JwtGuardUser<RealUser> = {
  * JWT guard.
  */
 export interface JwtUserProviderContract<RealUser> {
-   /**
-    * A property the guard implementation can use to infer
-    * the data type of the actual user (aka RealUser)
-    */
-   [symbols.PROVIDER_REAL_USER]: RealUser
+  /**
+   * A property the guard implementation can use to infer
+   * the data type of the actual user (aka RealUser)
+   */
+  [symbols.PROVIDER_REAL_USER]: RealUser
 
-   /**
-    * Create a user object that acts as an adapter between
-    * the guard and real user value.
-    */
-   createUserForGuard(user: RealUser): Promise<JwtGuardUser<RealUser>>
+  /**
+   * Create a user object that acts as an adapter between
+   * the guard and real user value.
+   */
+  createUserForGuard(user: RealUser): Promise<JwtGuardUser<RealUser>>
 
-   /**
-    * Find a user by their id.
-    */
-   findById(identifier: string | number | BigInt): Promise<JwtGuardUser<RealUser> | null>
+  /**
+   * Find a user by their id.
+   */
+  findById(identifier: string | number | BigInt): Promise<JwtGuardUser<RealUser> | null>
 }
