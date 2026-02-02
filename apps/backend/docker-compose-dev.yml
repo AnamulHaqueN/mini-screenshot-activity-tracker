@@ -2,7 +2,7 @@ services:
    # MySQL Database for Development
    mysql:
       image: mysql:8.0
-      container_name: screenshot-tracker-mysql-dev
+      container_name: ezystaff-mysql-dev
       restart: unless-stopped
       environment:
          MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
@@ -58,6 +58,8 @@ services:
       depends_on:
          mysql:
             condition: service_healthy
+      extra_hosts:
+      - "mysql:172.18.0.2"
       networks:
          - backend-network
       volumes:
