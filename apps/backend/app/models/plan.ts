@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import Company from './company.js'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-export type PlanName = 'basic' | 'pro' | 'enterprise'
+import type { PlanName } from '#modules/plans/plans.type'
 
 export default class Plan extends BaseModel {
    @column({ isPrimary: true })
