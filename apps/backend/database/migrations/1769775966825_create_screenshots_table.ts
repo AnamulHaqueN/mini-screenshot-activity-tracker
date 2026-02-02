@@ -20,7 +20,7 @@ export default class extends BaseSchema {
          // Critical indexes for performance with 1M+ records
 
          table.index(['user_id', 'captured_at'], 'idx_user_captured_at')
-         table.index(['company_id', 'captured_at'], 'idx_company_captured_at')
+         // table.index(['company_id', 'captured_at'], 'idx_company_captured_at')
       })
    }
 

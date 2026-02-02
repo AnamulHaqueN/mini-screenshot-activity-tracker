@@ -18,9 +18,7 @@ export default class extends BaseSchema {
          table.foreign('company_id').references('id').inTable('companies').onDelete('CASCADE')
 
          table.index('email')
-         table.index('company_id')
-         table.index('role')
-         table.index(['company_id', 'role'])
+         // table.index(['company_id', 'role'])
       })
    }
 
