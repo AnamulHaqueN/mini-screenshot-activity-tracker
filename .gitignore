@@ -45,6 +45,7 @@ next-env.d.ts
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 
+# Docker
 apps/backend/.pnpm-store
 apps/frontend/.pnpm-store
 n
