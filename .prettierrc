@@ -8,6 +8,9 @@
   "trailingComma": "es5",
   "semi": false,
   "bracketSpacing": false,
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ],
   "tailwindFunctions": [
     "cn",
     "clsx",
