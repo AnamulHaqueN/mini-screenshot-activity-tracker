@@ -12,7 +12,7 @@ export default class Plan extends BaseModel {
    declare name: PlanName
 
    @column()
-   declare price_per_employee: number
+   declare pricePerEmployee: number
 
    @column.dateTime({ autoCreate: true })
    declare createdAt: DateTime
