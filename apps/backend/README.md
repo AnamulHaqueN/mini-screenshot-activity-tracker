@@ -73,3 +73,23 @@ explain analyze  select file_path from screenshots where user_id = 2 and (captur
 
 
 ```
+
+## 🚀 Build & Run Commands
+
+### **Development (from apps/backend directory):**
+
+```bash
+cd apps/backend
+
+# Start development environment
+docker-compose -f docker-compose-dev.yml up
+
+# Run migrations
+docker-compose -f docker-compose-dev.yml exec backend sh -c "pnpm exec node ace migration:run"
+
+# Enter in container
+docker-compose -f docker-compose-dev.yml exec backend sh
+
+# Stop
+docker-compose -f docker-compose-dev.yml down
+```
