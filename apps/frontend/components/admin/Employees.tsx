@@ -8,6 +8,7 @@ import { useDeleteEmployee, useEmployee, useSearchEmployee } from "@/queries/emp
 import { useDebounce } from "@/hooks/useDebounce";
 import AddEmployeeModal from "./AddEmployee";
 import { useRouter } from "next/navigation";
+import { Employee } from "@/types/employee";
 
 
 export default function Employees() {
@@ -22,7 +23,7 @@ export default function Employees() {
 
    const { data: allEmployees, isPending } = useEmployee(pageNumber);
    const { data: searchedEmployees = [], refetch, isFetching: isSearching, error, isPending: pending } = useSearchEmployee(debouncedSearch);
-
+   console.log(allEmployees?.data)
    const employees = !pending ? searchedEmployees : allEmployees?.data;
    const isLoading = isPending || isSearching;
    const meta = allEmployees?.meta;
@@ -115,7 +116,7 @@ export default function Employees() {
             </div>
          )}
 
-         {!isLoading && employees!.length > 0 && (
+         {!isLoading && employees.length > 0 && (
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                <div className="overflow-x-auto">
                <table className="w-full">

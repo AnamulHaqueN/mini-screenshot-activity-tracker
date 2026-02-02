@@ -7,35 +7,33 @@ import type { Authenticators } from '@adonisjs/auth/types'
  * access to unauthenticated users.
  */
 export default class AuthMiddleware {
-   /**
-    * The URL to redirect to, when authentication fails
-    */
-   redirectTo = '/login'
+  /**
+   * The URL to redirect to, when authentication fails
+   */
+  redirectTo = '/login'
 
-   async handle(
-      ctx: HttpContext,
-      next: NextFn,
-      options: {
-         guards?: (keyof Authenticators)[]
-      } = {}
-   ) {
-      const token = ctx.request.cookie('jwt_token')
+  async handle(
+    ctx: HttpContext,
+    next: NextFn,
+    options: {
+      guards?: (keyof Authenticators)[]
+    } = {}
+  ) {
+    const token = ctx.request.cookie('jwt_token')
 
-      if (token) {
-         ctx.request.request.headers.authorization = `Bearer ${token}`
-      }
+    if (token) {
+      ctx.request.request.headers.authorization = `Bearer ${token}`
+    }
 
-      try {
-         await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
-      } catch (error) {
-         ctx.response.clearCookie('jwt_token')
-         ctx.response.clearCookie('role')
-         ctx.auth.use('web').logout()
-         return ctx.response.unauthorized({
-            error: 'Authentication failed',
-            // message: 'Invalid or Expired token',
-         })
-      }
-      return next()
-   }
+    try {
+      await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
+    } catch (error) {
+      ctx.response.clearCookie('jwt_token')
+      return ctx.response.unauthorized({
+        error: 'Authentication failed',
+        message: 'Invalid or Expired token',
+      })
+    }
+    return next()
+  }
 }

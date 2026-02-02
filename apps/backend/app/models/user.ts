@@ -11,43 +11,43 @@ import Screenshot from './screenshot.js'
 export type RoleName = 'owner' | 'employee' | 'admin'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
-   uids: ['email'],
-   passwordColumnName: 'password',
+  uids: ['email'],
+  passwordColumnName: 'password',
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
-   @column({ isPrimary: true })
-   declare id: number
+  @column({ isPrimary: true })
+  declare id: number
 
-   @column()
-   declare name: string
+  @column()
+  declare name: string
 
-   @column()
-   declare email: string
+  @column()
+  declare email: string
 
-   @column({ serializeAs: null })
-   declare password: string
+  @column({ serializeAs: null })
+  declare password: string
 
-   @column()
-   declare isActive: boolean
+  @column()
+  declare isActive: boolean
 
-   @column()
-   declare companyId: number
+  @column()
+  declare companyId: number
 
-   @column()
-   declare role: RoleName
+  @column()
+  declare role: RoleName
 
-   @column.dateTime({ autoCreate: true })
-   declare createdAt: DateTime
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
 
-   //   @column.dateTime({ autoCreate: true, autoUpdate: true })
-   //   declare updatedAt: DateTime | null
+  //   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  //   declare updatedAt: DateTime | null
 
-   @belongsTo(() => Company)
-   declare company: BelongsTo<typeof Company>
+  @belongsTo(() => Company)
+  declare company: BelongsTo<typeof Company>
 
-   @hasMany(() => Screenshot)
-   declare screenshots: HasMany<typeof Screenshot>
+  @hasMany(() => Screenshot)
+  declare screenshots: HasMany<typeof Screenshot>
 
-   //   static accessTokens = DbAccessTokensProvider.forModel(User, {})
+  //   static accessTokens = DbAccessTokensProvider.forModel(User, {})
 }
