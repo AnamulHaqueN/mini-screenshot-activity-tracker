@@ -2,12 +2,12 @@ services:
    # MySQL Database for Development
    mysql:
       image: mysql:8.0
-      container_name: ezystaff-mysql-dev
       restart: unless-stopped
       environment:
          MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
          MYSQL_DATABASE: ${DB_DATABASE:-app}
       ports:
+         - '3307:3306'
          - '3307:3306'
       volumes:
          - mysql_data_dev:/var/lib/mysql
@@ -15,7 +15,8 @@ services:
          - backend-network
       command: --default-authentication-plugin=mysql_native_password
       healthcheck:
-         test: ['CMD', 'mysqladmin', 'ping', '-u', 'root', '-p${DB_PASSWORD:-root}']
+         test:
+            ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${DB_PASSWORD:-root}']
          interval: 10s
          timeout: 5s
          retries: 5
@@ -23,7 +24,6 @@ services:
    # Backend Application (Development with Hot Reload)
    backend:
       image: node:20-alpine
-      container_name: ezystaff-backend-dev
       restart: unless-stopped
       working_dir: /app
       command: sh -c "apk add --no-cache netcat-openbsd && corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm install && echo 'Waiting for MySQL to be ready...' && while ! nc -z mysql 3306; do echo 'MySQL is unavailable - sleeping'; sleep 2; done && echo 'MySQL is up - executing migrations' && node ace migration:run && pnpm run dev"
@@ -45,10 +45,12 @@ services:
          CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
          CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
          SESSION_DRIVER: ${SESSION_DRIVER}
+         SESSION_MAX_AGE: ${SESSION_MAX_AGE}
       depends_on:
          mysql:
             condition: service_healthy
-
+      extra_hosts:
+         - 'mysql:172.18.0.2'
       networks:
          - backend-network
       volumes:
