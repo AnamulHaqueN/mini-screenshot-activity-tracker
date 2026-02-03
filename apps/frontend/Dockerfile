@@ -3,7 +3,7 @@ ARG NODE_VERSION=20.13.1
 ARG PNPM_VERSION=10.25.0
 
 ################################################################################
-FROM node:${NODE_VERSION}-alpine as base
+FROM node:${NODE_VERSION}-alpine AS base
 
 WORKDIR /usr/src/app
 
@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm@${PNPM_VERSION}
 
 ################################################################################
-FROM base as deps
+FROM base AS deps
 
 # Copy all package files first
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter=frontend
 
 ################################################################################
-FROM deps as build
+FROM deps AS build
 
 # Copy the rest of the source files
 COPY apps/frontend ./apps/frontend
@@ -29,15 +29,11 @@ COPY apps/frontend ./apps/frontend
 # Set working directory to frontend for the build
 WORKDIR /usr/src/app/apps/frontend
 
-# Build arguments for environment variables needed at build time
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-
 # Run the build
 RUN pnpm run build
 
 ################################################################################
-FROM base as final
+FROM base AS final
 
 RUN apk add --no-cache \
     dumb-init \
@@ -62,8 +58,14 @@ COPY --from=deps --chown=nextjs:nodejs /usr/src/app/apps/frontend/node_modules .
 
 # Copy the built application
 COPY --from=build --chown=nextjs:nodejs /usr/src/app/apps/frontend/.next ./apps/frontend/.next
-COPY --from=build --chown=nextjs:nodejs /usr/src/app/apps/frontend/public ./apps/frontend/public
 COPY --from=build --chown=nextjs:nodejs /usr/src/app/apps/frontend/next.config.ts ./apps/frontend/next.config.ts
+
+# Copy public directory only if it exists
+RUN --mount=type=bind,from=build,source=/usr/src/app/apps/frontend,target=/tmp/build \
+    if [ -d /tmp/build/public ]; then \
+        cp -r /tmp/build/public ./apps/frontend/ && \
+        chown -R nextjs:nodejs ./apps/frontend/public; \
+    fi
 
 # Create necessary directories
 RUN mkdir -p /usr/src/app/apps/frontend/.next/cache && \
@@ -78,5 +80,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["node", "apps/frontend/node_modules/.bin/next", "start", "-p", "3000", "--hostname", "0.0.0.0"]
+ENTRYPOINT ["dumb-init", "--"]
+WORKDIR /usr/src/app/apps/frontend
+CMD ["pnpm", "start"]
 

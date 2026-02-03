@@ -2,7 +2,7 @@ services:
    # MySQL Database for Development
    mysql:
       image: mysql:8.0
-      container_name: ezystaff-mysql-dev
+      container_name: screenshot-tracker-mysql-dev
       restart: unless-stopped
       environment:
          MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
@@ -33,10 +33,10 @@ services:
    # Backend Application (Development with Hot Reload)
    backend:
       image: node:20-alpine
-      container_name: ezystaff-backend-dev
+      container_name: screenshot-tracker-backend-dev
       restart: unless-stopped
       working_dir: /app
-      command: sh -c "corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm install && echo 'Running migrations...' && node ace migration:run && pnpm run dev"
+      command: sh -c "apk add --no-cache netcat-openbsd && corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm install && echo 'Waiting for MySQL to be ready...' && while ! nc -z mysql 3306; do echo 'MySQL is unavailable - sleeping'; sleep 2; done && echo 'MySQL is up - executing migrations' && node ace migration:run && pnpm run dev"
       ports:
          - "${PORT:-3333}:3333"
       environment:
@@ -46,11 +46,10 @@ services:
          LOG_LEVEL: ${LOG_LEVEL:-debug}
          APP_KEY: ${APP_KEY}
          NODE_ENV: development
-         # External MySQL connection
-         DB_HOST: ${DB_HOST:-127.0.0.1}
-         DB_PORT: ${DB_PORT:-3306}
+         DB_HOST: mysql
+         DB_PORT: 3306
          DB_USER: ${DB_USER:-root}
-         DB_PASSWORD: ${DB_PASSWORD}
+         DB_PASSWORD: ${DB_PASSWORD:-root}
          DB_DATABASE: ${DB_DATABASE:-app}
          CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
          CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
@@ -59,11 +58,17 @@ services:
       depends_on:
          mysql:
             condition: service_healthy
-      extra_hosts:
-      - "mysql:172.18.0.2"
       networks:
          - backend-network
       volumes:
          - .:/app
          - /app/node_modules
          - ./logs:/app/logs
+
+networks:
+   backend-network:
+      driver: bridge
+
+volumes:
+   mysql_data_dev:
+      driver: local
