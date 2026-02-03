@@ -50,3 +50,6 @@ apps/backend/.pnpm-store
 apps/frontend/.pnpm-store
 n
 get-docker.sh
+
+# VSCode
+.vscode
