@@ -9,7 +9,7 @@ env:
   ECS_SERVICE: ezy-staff-frontend-service
   ECS_CLUSTER: ezy-staff-cluster-cluster
   ECS_TASK_DEFINITION: .aws/frontend-task-definition.json
-  CONTAINER_NAME: frontend-container
+  CONTAINER_NAME: frontend
 
 jobs:
   deploy:

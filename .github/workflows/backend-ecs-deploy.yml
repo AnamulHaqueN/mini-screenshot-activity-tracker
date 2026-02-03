@@ -12,7 +12,7 @@ env:
   ECS_SERVICE: ezy-staff-backend-service
   ECS_CLUSTER: ezy-staff-cluster-cluster
   ECS_TASK_DEFINITION: .aws/backend-task-definition.json
-  CONTAINER_NAME: backend-container
+  CONTAINER_NAME: backend
 
 jobs:
   deploy:
