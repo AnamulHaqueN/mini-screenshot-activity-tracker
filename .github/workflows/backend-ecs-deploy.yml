@@ -7,7 +7,7 @@ on:
   #     - main
 
 env:
-  AWS_REGION: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: ezystaff/backend
   ECS_SERVICE: ezy-staff-backend-service
   ECS_CLUSTER: ezy-staff-cluster-cluster
