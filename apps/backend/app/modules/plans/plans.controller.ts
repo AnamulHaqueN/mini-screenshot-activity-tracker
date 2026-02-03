@@ -7,9 +7,19 @@ export default class PlansController {
       return response.ok({ data: plans })
    }
    async store({ request, response }: HttpContext) {
-      console.log(request)
-      // const plan = await Plan.create({
-      //    name: pla,
-      // })
+      const data = request.only(['name', 'price'])
+
+      const plans = await Plan.create({
+         name: data.name,
+         pricePerEmployee: data.price,
+      })
+
+      return response.created({
+         message: 'Plan created successfully',
+         data: {
+            name: plans.name,
+            price: plans.pricePerEmployee,
+         },
+      })
    }
 }
