@@ -77,32 +77,6 @@ export default class EmployeeController {
       return response.ok({ data: employee })
    }
 
-   async update({ auth, params, request, response }: HttpContext) {
-      const user = auth.getUserOrFail()
-
-      const employee = await User.query()
-         .where('id', params.id)
-         .where('company_id', user.companyId)
-         .where('role', 'employee')
-         .first()
-
-      if (!employee) {
-         return response.notFound({ message: 'Employee not found' })
-      }
-
-      const { isActive } = request.only(['isActive'])
-
-      if (typeof isActive === 'boolean') {
-         employee.isActive = isActive
-         await employee.save()
-      }
-
-      return response.ok({
-         message: 'Employee updated successfully',
-         data: employee,
-      })
-   }
-
    async destroy({ auth, params, response }: HttpContext) {
       const user = auth.getUserOrFail()
 
