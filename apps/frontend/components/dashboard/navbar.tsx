@@ -89,7 +89,7 @@ export default function Navbar() {
                            Sign In
                         </button>
                         <button
-                           onClick={() => router.push("/signup")}
+                           onClick={() => router.push("/register")}
                            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                            Get Started
                         </button>
