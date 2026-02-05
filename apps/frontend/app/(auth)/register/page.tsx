@@ -1,7 +1,7 @@
 "use client"
 
 import {useRegister} from "@/queries/auth"
-import {useRouter} from "next/navigation"
+import {useRouter, useSearchParams} from "next/navigation"
 import {useState} from "react"
 import {RegisterInput, registerSchema} from "../../../schemas/register"
 import {ZodError} from "zod"
@@ -21,6 +21,9 @@ export default function Register() {
    const {data: plans} = usePlans()
    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
    const router = useRouter()
+   const searchParams = useSearchParams()
+   const planId = searchParams.get("plan_id")
+   // console.log("Plan id: ", planId)
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
@@ -34,7 +37,7 @@ export default function Register() {
             ownerEmail: formData.get("ownerEmail"),
             password: formData.get("password"),
             companyName: formData.get("companyName"),
-            planId: Number(formData.get("planId")),
+            planId: Number(planId),
          })
 
          await mutateAsync(validateData)
@@ -143,28 +146,6 @@ export default function Register() {
                         <p className="text-red-600 text-sm mt-1">
                            {fieldErrors.companyName}
                         </p>
-                     )}
-                  </div>
-
-                  <div>
-                     <label
-                        htmlFor="plan"
-                        className="block text-sm font-medium text-gray-700">
-                        Select Plan
-                     </label>
-                     <select
-                        id="plan"
-                        name="planId"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        {plans?.map(plan => (
-                           <option key={plan.id} value={plan.id}>
-                              {plan.name.toUpperCase()} - ${plan.pricePerEmployee}
-                              /employee
-                           </option>
-                        ))}
-                     </select>
-                     {fieldErrors.planId && (
-                        <p className="text-red-600 text-sm mt-1">{fieldErrors.planId}</p>
                      )}
                   </div>
                </div>
