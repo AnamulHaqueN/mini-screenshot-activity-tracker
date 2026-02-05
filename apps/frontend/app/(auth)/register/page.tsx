@@ -10,7 +10,8 @@ import {usePlans} from "@/queries/plans"
 import {plans} from "@/utils/plans"
 
 type FieldErrors = {
-   ownerName?: string
+   firstName?: string
+   lastName?: string
    ownerEmail?: string
    password?: string
    companyName?: string
@@ -34,7 +35,7 @@ export default function Register() {
 
       try {
          const validateData: RegisterInput = registerSchema.parse({
-            ownerName: formData.get("ownerName"),
+            ownerName: formData.get("firstName") + " " + formData.get("lastName"),
             ownerEmail: formData.get("ownerEmail"),
             password: formData.get("password"),
             companyName: formData.get("companyName"),
@@ -110,13 +111,13 @@ export default function Register() {
                            <span className="text-red-500">* </span>First Name
                         </label>
                         <input
-                           name="ownerName"
+                           name="firstName"
                            required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="First name"
                         />
-                        {fieldErrors.ownerName && (
-                           <p className="text-red-500 text-sm">{fieldErrors.ownerName}</p>
+                        {fieldErrors.firstName && (
+                           <p className="text-red-500 text-sm">{fieldErrors.firstName}</p>
                         )}
                      </div>
                      <div>
@@ -124,10 +125,14 @@ export default function Register() {
                            <span className="text-red-500">* </span>Last Name
                         </label>
                         <input
+                           name="lastName"
                            required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="Last name"
                         />
+                        {fieldErrors.lastName && (
+                           <p className="text-red-500 text-sm">{fieldErrors.lastName}</p>
+                        )}
                      </div>
                   </div>
 
