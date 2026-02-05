@@ -1,9 +1,5 @@
-import User from '#models/user'
 import { loginValidator, signUpValidator } from '#modules/auth/auth.validator'
 import type { HttpContext } from '@adonisjs/core/http'
-import hash from '@adonisjs/core/services/hash'
-import { cookieConfig } from '../../helper/jwt_cookie.js'
-import env from '#start/env'
 import { AuthService } from './auth.service.js'
 import { inject } from '@adonisjs/core'
 
@@ -17,42 +13,12 @@ export default class AuthController {
       return response.created(res)
    }
 
-   async login({ auth, request, response }: HttpContext) {
-      const { email, password } = await request.validateUsing(loginValidator)
-
-      const user = await User.query().where('email', email).first()
-
-      if (!user) {
-         return response.unauthorized({ message: 'Invalid credentials' })
-      }
-
-      const isPasswordValid = await hash.verify(user.password, password)
-      if (!isPasswordValid) {
-         return response.unauthorized({ message: 'Invalid credentials' })
-      }
-
-      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
-      response.plainCookie('role', user.role, {
-         httpOnly: true,
-         maxAge: env.get('SESSION_MAX_AGE'),
-      })
-
-      await auth.use('web').login(user)
-
-      const token = await auth.use('jwt').generate(user)
-      response.cookie('token', token.token, cookieConfig())
-
-      return response.ok({
+   async login(ctx: HttpContext) {
+      const payload = await ctx.request.validateUsing(loginValidator)
+      const user = (await this.authService.login(ctx, payload)) ?? null
+      return ctx.response.ok({
          message: 'Login successful',
-         data: {
-            user: {
-               id: user.id,
-               name: user.name,
-               email: user.email,
-               role: user.role,
-               companyId: user.companyId,
-            },
-         },
+         data: { user },
       })
    }
 

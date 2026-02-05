@@ -5,3 +5,8 @@ export interface RegisterType {
    companyName: string
    planId: number
 }
+
+export interface LoginType {
+   email: string
+   password: string
+}

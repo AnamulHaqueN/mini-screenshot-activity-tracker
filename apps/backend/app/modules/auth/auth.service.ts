@@ -1,7 +1,12 @@
 import Plan from '#models/plan'
 import User from '#models/user'
-import { RegisterType } from './auth.type.js'
+import { LoginType, RegisterType } from './auth.type.js'
 import Company from '#models/company'
+import { HttpContext } from '@adonisjs/core/http'
+import hash from '@adonisjs/core/services/hash'
+import env from '#start/env'
+import { cookieConfig } from '../../helper/jwt_cookie.js'
+import { Exception } from '@adonisjs/core/exceptions'
 
 export class AuthService {
    async register(data: RegisterType) {
@@ -43,6 +48,44 @@ export class AuthService {
             },
             // token: token.value!.release(),
          },
+      }
+   }
+
+   async login(ctx: HttpContext, payload: LoginType) {
+      const user = await User.query().where('email', payload.email).first()
+
+      if (!user) {
+         throw new Exception('Invalid credentials', {
+            status: 401,
+            code: 'E_INVALID_CREDENTIALS',
+         })
+      }
+
+      const isPasswordValid = await hash.verify(user.password, payload.password)
+      if (!isPasswordValid) {
+         throw new Exception('Invalid credentials', {
+            status: 401,
+            code: 'E_INVALID_CREDENTIALS',
+         })
+      }
+
+      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
+      ctx.response.plainCookie('role', user.role, {
+         httpOnly: true,
+         maxAge: env.get('SESSION_MAX_AGE'),
+      })
+
+      await ctx.auth.use('web').login(user)
+
+      const token = await ctx.auth.use('jwt').generate(user)
+      ctx.response.cookie('token', token.token, cookieConfig())
+
+      return {
+         id: user.id,
+         name: user.name,
+         email: user.email,
+         role: user.role,
+         companyId: user.companyId,
       }
    }
 }
