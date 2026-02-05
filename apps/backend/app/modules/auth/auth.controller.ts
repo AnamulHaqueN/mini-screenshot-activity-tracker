@@ -5,7 +5,9 @@ import hash from '@adonisjs/core/services/hash'
 import { cookieConfig } from '../../helper/jwt_cookie.js'
 import env from '#start/env'
 import { AuthService } from './auth.service.js'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class AuthController {
    constructor(private authService: AuthService) {}
 
