@@ -7,6 +7,7 @@ import {RegisterInput, registerSchema} from "../../../schemas/register"
 import {ZodError} from "zod"
 import Link from "next/link"
 import {usePlans} from "@/queries/plans"
+import {plans} from "@/utils/plans"
 
 type FieldErrors = {
    ownerName?: string
@@ -18,7 +19,6 @@ type FieldErrors = {
 
 export default function Register() {
    const {mutateAsync, isPending, error} = useRegister()
-   const {data: plans} = usePlans()
    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
    const router = useRouter()
    const searchParams = useSearchParams()
@@ -169,7 +169,7 @@ export default function Register() {
                         <p className="text-gray-500">{selectedPlan?.description}</p>
                      </div>
                      <span className="border px-3 py-1 rounded text-sm text-purple-600">
-                        Lifetime
+                        Subscribe to Monthly
                      </span>
                   </div>
 
@@ -177,7 +177,7 @@ export default function Register() {
 
                   <div className="flex justify-between text-lg">
                      <span>Price:</span>
-                     <span className="font-bold">${selectedPlan?.price ?? "0.00"}</span>
+                     <span className="font-bold">{selectedPlan?.price ?? "0.00"}</span>
                   </div>
 
                   <label className="flex items-start gap-2 text-sm">
