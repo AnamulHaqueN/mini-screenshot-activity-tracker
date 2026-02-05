@@ -25,6 +25,10 @@ export default function Navbar() {
       router.push("/")
    }
 
+   const handlePricing = () => {
+      router.push("/pricing")
+   }
+
    return (
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,6 +41,12 @@ export default function Navbar() {
                      <Camera className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-900">{APP_NAME}</span>
+               </div>
+
+               <div
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition"
+                  onClick={handlePricing}>
+                  <span className="text-gray-900">Pricing</span>
                </div>
 
                {/* Desktop Menu */}
