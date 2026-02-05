@@ -1,55 +1,18 @@
-import Company from '#models/company'
-import Plan from '#models/plan'
 import User from '#models/user'
 import { loginValidator, signUpValidator } from '#modules/auth/auth.validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import { cookieConfig } from '../../helper/jwt_cookie.js'
 import env from '#start/env'
+import { AuthService } from './auth.service.js'
 
 export default class AuthController {
+   constructor(private authService: AuthService) {}
+
    async register({ request, response }: HttpContext) {
-      const data = await request.validateUsing(signUpValidator)
-
-      const plan = await Plan.findOrFail(data.planId)
-
-      const company = await Company.create({
-         name: data.companyName,
-         planId: plan.id,
-      })
-
-      // Create owner or admin
-      const owner = await User.create({
-         name: data.ownerName,
-         email: data.ownerEmail,
-         password: data.password,
-         companyId: company.id,
-         role: 'admin',
-      })
-
-      /**
-       * Ignore access token creation in the time of registration
-       * Token will be generated in login time
-       */
-      //  const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
-
-      return response.created({
-         message: 'Company registered successfully',
-         data: {
-            company: {
-               id: company.id,
-               name: company.name,
-               planId: company.planId,
-            },
-            owner: {
-               id: owner.id,
-               name: owner.name,
-               email: owner.email,
-               role: owner.role,
-            },
-            // token: token.value!.release(),
-         },
-      })
+      const payload = await request.validateUsing(signUpValidator)
+      const res = await this.authService.register(payload)
+      return response.created(res)
    }
 
    async login({ auth, request, response }: HttpContext) {
