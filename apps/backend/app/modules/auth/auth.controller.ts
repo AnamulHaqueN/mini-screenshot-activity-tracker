@@ -26,14 +26,12 @@ export default class AuthController {
       response.clearCookie('jwt_token')
       auth.use('web').logout()
       response.clearCookie('role')
-
       return response.ok({ message: 'Logout successful' })
    }
 
    async me({ auth, response }: HttpContext) {
       const user = auth.getUserOrFail()
       await user.load('company')
-
       return response.ok({
          data: {
             id: user.id,
