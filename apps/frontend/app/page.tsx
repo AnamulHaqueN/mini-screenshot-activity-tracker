@@ -64,20 +64,20 @@ export default function HomePage() {
                </h1>
                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                   Monitor team productivity with automated screenshot tracking. Track work
-                  hours, view activity timelines, and gain insights into your team's
+                  hours, view activity timelines, and gain insights into your team&apos;s
                   workflow.
                </p>
                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
                      onClick={handleGetStarted}
-                     className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                     className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 shadow-lg shadow-blue-600/30 cursor-pointer">
                      {user ? "Go to Dashboard" : "Get Started Now"}
                      <ArrowRight className="w-5 h-5" />
                   </button>
                   {!user && (
                      <button
                         onClick={handleSignIn}
-                        className="px-8 py-4 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-lg border border-gray-300">
+                        className="px-8 py-4 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-lg border border-gray-300 cursor-pointer">
                         Sign In
                      </button>
                   )}
@@ -264,7 +264,7 @@ export default function HomePage() {
                </p>
                <button
                   onClick={handleGetStarted}
-                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 mx-auto shadow-lg shadow-blue-600/30">
+                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 mx-auto shadow-lg shadow-blue-600/30 cursor-pointer">
                   {user ? "Go to Dashboard" : "Start Here"}
                   <ArrowRight className="w-5 h-5" />
                </button>

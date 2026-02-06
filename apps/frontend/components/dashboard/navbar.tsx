@@ -95,12 +95,12 @@ export default function Navbar() {
                      <div className="flex items-center gap-2">
                         <button
                            onClick={() => router.push("/login")}
-                           className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition">
+                           className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition cursor-pointer">
                            Sign In
                         </button>
                         <button
                            onClick={() => router.push("/pricing")}
-                           className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                           className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
                            Get Started
                         </button>
                      </div>
