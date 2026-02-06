@@ -25,6 +25,30 @@ export default class HttpExceptionHandler extends ExceptionHandler {
          })
       }
 
+      if (error.code === 'E_FAILED_TO_UPLOAD_SCREENSHOT') {
+         return ctx.response.status(500).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'EMPLOYEE_NOT_FOUND') {
+         return ctx.response.status(404).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'MISSING_REQUIRED_FIELDS') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'INVALID_DATE_FORMAT') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
       return super.handle(error, ctx)
    }
 
