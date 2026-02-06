@@ -5,6 +5,6 @@ export interface IPlans {
    price: number
    period?: string
    note?: string
-   features?: string[]
+   features?: string[] | null
    highlight?: boolean
 }
