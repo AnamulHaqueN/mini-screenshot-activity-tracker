@@ -32,7 +32,7 @@ export default function HomePage() {
             router.push("/screenshots")
          }
       } else {
-         router.push("/register")
+         router.push("/pricing")
       }
    }
 
