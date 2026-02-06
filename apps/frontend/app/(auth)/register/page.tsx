@@ -66,13 +66,13 @@ export default function Register() {
 
    return (
       <div className="min-h-screen bg-gray-50 py-12 px-6">
-         <div className="max-w-6xl mx-auto">
+         <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold mb-2">Checkout</h1>
             <p className="text-gray-500 mb-8">Complete your purchase securely</p>
 
             <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
                {/* LEFT: ACCOUNT INFO */}
-               <div className="bg-white rounded-xl shadow p-6 space-y-4">
+               <div className="bg-white rounded-xl shadow p-6 space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Account Information</h2>
 
                   {error && (
@@ -203,7 +203,7 @@ export default function Register() {
 
                   <button
                      disabled={isPending}
-                     className="w-full bg-gray-200 text-gray-500 py-3 rounded-lg mt-4 disabled:opacity-50">
+                     className="w-full bg-green-600 text-white py-3 rounded-lg mt-4 disabled:opacity-50 cursor-pointer">
                      {isPending ? "Processing..." : "Place Order"}
                   </button>
 
