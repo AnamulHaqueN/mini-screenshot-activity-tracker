@@ -6,8 +6,13 @@ export default class extends BaseSchema {
    async up() {
       this.schema.createTable(this.tableName, (table) => {
          table.increments('id').primary()
-         table.enum('name', ['basic', 'pro', 'enterprise']).notNullable().unique()
-         table.integer('price_per_employee').notNullable()
+         table.string('name').notNullable().unique()
+         table.string('description').nullable()
+         table.decimal('price_per_employee').notNullable()
+         table.string('period').nullable()
+         table.string('note').nullable()
+         table.string('feature').nullable()
+         table.json('highlight').nullable()
          table.timestamp('created_at').notNullable().defaultTo(this.now())
          table.timestamp('updated_at').notNullable().defaultTo(this.now())
       })
