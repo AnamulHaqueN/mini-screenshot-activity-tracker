@@ -1,14 +1,9 @@
-import cloudinary from '#config/cloudinary'
-import Screenshot from '#models/screenshot'
-import User from '#models/user'
 import {
-   getScreenshotsValidator,
    groupedScreenshotsValidator,
    uploadScreenshotValidator,
 } from '#modules/screenshots/screenshot.validator'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { DateTime } from 'luxon'
 import { ScreenshotService } from './screenshot.service.js'
 
 @inject()
