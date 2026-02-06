@@ -11,11 +11,12 @@ export default class AuthController {
    async register({ request, response }: HttpContext) {
       const data = await request.validateUsing(signUpValidator)
 
-      const plan = await Plan.findOrFail(data.planId)
+      let plan
+      if (data.planId) plan = await Plan.find(data.planId)
 
       const company = await Company.create({
          name: data.companyName,
-         planId: plan.id,
+         planId: plan?.id ?? 1,
       })
 
       // Create owner or admin

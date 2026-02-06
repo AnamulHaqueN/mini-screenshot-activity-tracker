@@ -1,15 +1,16 @@
 "use client"
 
 import {useRegister} from "@/queries/auth"
-import {useRouter} from "next/navigation"
+import {useRouter, useSearchParams} from "next/navigation"
 import {useState} from "react"
 import {RegisterInput, registerSchema} from "../../../schemas/register"
 import {ZodError} from "zod"
 import Link from "next/link"
-import {usePlans} from "@/queries/plans"
+import {plans} from "@/utils/plans"
 
 type FieldErrors = {
-   ownerName?: string
+   firstName?: string
+   lastName?: string
    ownerEmail?: string
    password?: string
    companyName?: string
@@ -17,10 +18,13 @@ type FieldErrors = {
 }
 
 export default function Register() {
-   const {mutateAsync, isPending, isError, error} = useRegister()
-   const {data: plans} = usePlans()
+   const {mutateAsync, isPending, error} = useRegister()
    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
    const router = useRouter()
+   const searchParams = useSearchParams()
+   const planId = Number(searchParams.get("plan_id"))
+
+   const selectedPlan = plans?.find(p => p.id === planId)
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
@@ -30,22 +34,29 @@ export default function Register() {
 
       try {
          const validateData: RegisterInput = registerSchema.parse({
-            ownerName: formData.get("ownerName"),
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
             ownerEmail: formData.get("ownerEmail"),
-            password: formData.get("password"),
             companyName: formData.get("companyName"),
-            planId: Number(formData.get("planId")),
+            password: formData.get("password"),
+            planId,
          })
 
-         await mutateAsync(validateData)
+         const configuredData = {
+            ownerName: validateData.firstName + " " + validateData.lastName,
+            ...validateData,
+         }
+
+         await mutateAsync(configuredData)
          router.push("/login")
       } catch (err) {
+         console.log("error", err)
          if (err instanceof ZodError) {
             const errors: FieldErrors = {}
             err.issues.forEach(issue => {
-               console.log(issue.path[0], issue.message)
-
                const field = issue.path[0] as keyof FieldErrors
+               console.log("field", field)
+               console.log("message", issue.message)
                errors[field] = issue.message
             })
             setFieldErrors(errors)
@@ -54,134 +65,151 @@ export default function Register() {
    }
 
    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-         <div className="max-w-md w-full space-y-8">
-            <div>
-               <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                  Create Company Account
-               </h2>
-            </div>
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-               {error && (
-                  <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
-                     {error.message}
-                  </div>
-               )}
+      <div className="min-h-screen bg-gray-50 py-12 px-6">
+         <div className="max-w-6xl mx-auto">
+            <h1 className="text-3xl font-bold mb-2">Checkout</h1>
+            <p className="text-gray-500 mb-8">Complete your purchase securely</p>
 
-               <div className="rounded-md shadow-sm space-y-4">
-                  <div>
-                     <label
-                        htmlFor="ownerName"
-                        className="block text-sm font-medium text-gray-700">
-                        Owner Name
-                     </label>
-                     <input
-                        id="ownerName"
-                        name="ownerName"
-                        type="text"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                     />
-                     {fieldErrors.ownerName && (
-                        <p className="text-red-600 text-sm mt-1">
-                           {fieldErrors.ownerName}
-                           {/* {fieldErrors} */}
-                        </p>
-                     )}
-                  </div>
+            <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
+               {/* LEFT: ACCOUNT INFO */}
+               <div className="bg-white rounded-xl shadow p-6 space-y-4">
+                  <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+
+                  {error && (
+                     <div className="bg-red-50 border border-red-400 text-red-700 px-3 py-2 rounded">
+                        {error.message}
+                     </div>
+                  )}
 
                   <div>
-                     <label
-                        htmlFor="ownerEmail"
-                        className="block text-sm font-medium text-gray-700">
-                        Owner Email
-                     </label>
-                     <input
-                        id="ownerEmail"
-                        name="ownerEmail"
-                        type="email"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                     />
-                     {fieldErrors.ownerEmail && (
-                        <p className="text-red-600 text-sm mt-1">
-                           {fieldErrors.ownerEmail}
-                        </p>
-                     )}
-                  </div>
-
-                  <div>
-                     <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-gray-700">
-                        Password
-                     </label>
-                     <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                     />
-                     {fieldErrors.password && (
-                        <p className="text-red-600 text-sm mt-1">
-                           {fieldErrors.password}
-                        </p>
-                     )}
-                  </div>
-
-                  <div>
-                     <label
-                        htmlFor="companyName"
-                        className="block text-sm font-medium text-gray-700">
+                     <label className="block text-sm font-medium">
+                        <span className="text-red-400">* </span>
                         Company Name
                      </label>
                      <input
-                        id="companyName"
                         name="companyName"
-                        type="text"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        className="mt-1 w-full border rounded-md px-3 py-2"
+                        placeholder="Company Name"
                      />
                      {fieldErrors.companyName && (
-                        <p className="text-red-600 text-sm mt-1">
-                           {fieldErrors.companyName}
-                        </p>
+                        <p className="text-red-500 text-sm">{fieldErrors.companyName}</p>
                      )}
                   </div>
 
                   <div>
-                     <label
-                        htmlFor="plan"
-                        className="block text-sm font-medium text-gray-700">
-                        Select Plan
+                     <label className="block text-sm font-medium">
+                        <span className="text-red-500">* </span>Email
                      </label>
-                     <select
-                        id="plan"
-                        name="planId"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        {plans?.map(plan => (
-                           <option key={plan.id} value={plan.id}>
-                              {plan.name.toUpperCase()} - ${plan.pricePerEmployee}
-                              /employee
-                           </option>
-                        ))}
-                     </select>
-                     {fieldErrors.planId && (
-                        <p className="text-red-600 text-sm mt-1">{fieldErrors.planId}</p>
+                     <input
+                        name="ownerEmail"
+                        type="email"
+                        className="mt-1 w-full border rounded-md px-3 py-2"
+                        placeholder="Enter your email"
+                     />
+                     {fieldErrors.ownerEmail && (
+                        <p className="text-red-500 text-sm">{fieldErrors.ownerEmail}</p>
                      )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <label className="block text-sm font-medium">
+                           <span className="text-red-500">* </span>First Name
+                        </label>
+                        <input
+                           name="firstName"
+                           className="mt-1 w-full border rounded-md px-3 py-2"
+                           placeholder="First name"
+                        />
+                        {fieldErrors.firstName && (
+                           <p className="text-red-500 text-sm">{fieldErrors.firstName}</p>
+                        )}
+                     </div>
+                     <div>
+                        <label className="block text-sm font-medium">
+                           <span className="text-red-500">* </span>Last Name
+                        </label>
+                        <input
+                           name="lastName"
+                           className="mt-1 w-full border rounded-md px-3 py-2"
+                           placeholder="Last name"
+                        />
+                        {fieldErrors.lastName && (
+                           <p className="text-red-500 text-sm">{fieldErrors.lastName}</p>
+                        )}
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <label className="block text-sm font-medium">
+                           <span className="text-red-500">* </span>Password{" "}
+                        </label>
+                        <input
+                           type="password"
+                           name="password"
+                           className="mt-1 w-full border rounded-md px-3 py-2"
+                           placeholder="Enter password"
+                        />
+                        {fieldErrors.password && (
+                           <p className="text-red-500 text-sm">{fieldErrors.password}</p>
+                        )}
+                     </div>
+                     <div>
+                        <label className="block text-sm font-medium">
+                           <span className="text-red-500">* </span>Confirm
+                        </label>
+                        <input
+                           type="password"
+                           className="mt-1 w-full border rounded-md px-3 py-2"
+                           placeholder="Confirm password"
+                        />
+                     </div>
                   </div>
                </div>
 
-               <div>
-                  <button
-                     type="submit"
-                     disabled={isPending}
-                     className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
-                     {isPending ? "Creating Account..." : "Create Account"}
-                  </button>
-               </div>
+               {/* RIGHT: PLAN SUMMARY */}
+               <div className="bg-white rounded-xl shadow p-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                     <div>
+                        <h2 className="text-xl font-semibold">{selectedPlan?.name}</h2>
+                        <p className="text-gray-500">{selectedPlan?.description}</p>
+                     </div>
+                     <span className="border px-3 py-1 rounded text-sm text-purple-600">
+                        Subscribe to Monthly
+                     </span>
+                  </div>
 
-               <div className="text-center">
-                  <Link href="/login" className="text-blue-600 hover:text-blue-500">
-                     Already have an account? Login
-                  </Link>
+                  <hr />
+
+                  <div className="flex justify-between text-lg">
+                     <span>Price:</span>
+                     <span className="font-bold">{selectedPlan?.price ?? "0.00"}</span>
+                  </div>
+
+                  <label className="flex items-start gap-2 text-sm">
+                     <input type="checkbox" required />
+                     <span>
+                        I agree to the{" "}
+                        <Link href="/terms" className="text-purple-600 underline">
+                           Terms and Conditions
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/privacy" className="text-purple-600 underline">
+                           Privacy Policy
+                        </Link>
+                     </span>
+                  </label>
+
+                  <button
+                     disabled={isPending}
+                     className="w-full bg-gray-200 text-gray-500 py-3 rounded-lg mt-4 disabled:opacity-50">
+                     {isPending ? "Processing..." : "Place Order"}
+                  </button>
+
+                  <p className="text-center text-sm text-gray-500 mt-4">
+                     🔒 Your payment information is secure and encrypted
+                  </p>
                </div>
             </form>
          </div>

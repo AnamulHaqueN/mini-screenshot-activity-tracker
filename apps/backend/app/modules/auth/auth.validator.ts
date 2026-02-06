@@ -8,10 +8,14 @@ const signUpSchema = vine.object({
    }),
    password: vine.string().minLength(4).maxLength(255),
    companyName: vine.string().trim().minLength(2).maxLength(255),
-   planId: vine.number().positive().exists({
-      table: 'plans',
-      column: 'id',
-   }),
+   planId: vine
+      .number()
+      .positive()
+      .exists({
+         table: 'plans',
+         column: 'id',
+      })
+      .optional(),
 })
 
 export const signUpValidator = vine.compile(signUpSchema)

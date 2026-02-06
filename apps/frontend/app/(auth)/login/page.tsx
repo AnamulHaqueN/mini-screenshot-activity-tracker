@@ -7,6 +7,8 @@ import {useState} from "react"
 import {LoginInput, loginSchema} from "../../../schemas/login"
 import {ZodError} from "zod"
 import {LoginResponse} from "@/types/error"
+import {APP_NAME} from "@/app/metadata"
+import {Camera} from "lucide-react"
 
 type FieldErrors = {
    email?: string
@@ -36,7 +38,6 @@ export default function LoginPage() {
          if (role === "admin" || role === "owner") router.push("/dashboard")
          else router.push("/screenshots")
       } catch (err) {
-         // need to be upgraded
          if (err instanceof ZodError) {
             const errors: FieldErrors = {}
             err.issues.forEach(issue => {
@@ -49,80 +50,90 @@ export default function LoginPage() {
    }
 
    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-         <div className="max-w-md w-full space-y-8">
-            <div>
-               <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                  Sign in to your account
-               </h2>
-            </div>
+      <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+         {/* LEFT PANEL */}
+         <div className="hidden md:flex bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-white flex-col items-center justify-center p-12">
+            <h1 className="text-3xl font-bold text-center mb-8">
+               Our white label mobile
+               <br /> app & web services.
+            </h1>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-               {isError && (
-                  <div
-                     role="alert"
-                     className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
-                     {typeof error === "string"
-                        ? error
-                        : "Login failed. Please try again."}
-                  </div>
-               )}
+            {/* <img src="/mockup.png" alt="App preview" className="max-w-md" /> */}
+         </div>
 
-               <div className="rounded-md shadow-sm space-y-4">
-                  <div>
-                     <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700">
-                        Email
-                     </label>
-                     <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                     />
-                     {fieldErrors.email && (
-                        <p id="email-error" className="text-red-600 text-sm mt-1">
-                           {fieldErrors.email}
-                        </p>
-                     )}
+         {/* RIGHT PANEL */}
+         <div className="flex items-center justify-center bg-gray-50">
+            <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
+               <div className="text-center mb-6">
+                  <div className="flex items-center justify-center mb-2">
+                     <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Camera className="w-5 h-5 text-white" />
+                     </div>
+                     <h1 className="text-2xl font-bold">
+                        Ezy<span className="text-blue-500">Staff</span>
+                     </h1>
                   </div>
-
-                  <div>
-                     <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-gray-700">
-                        Password
-                     </label>
-                     <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                     />
-                     {fieldErrors.password && (
-                        <p id="password-error" className="text-red-600 text-sm mt-1">
-                           {fieldErrors.password}
-                        </p>
-                     )}
-                  </div>
+                  <h2 className="text-xl font-bold">Welcome back!</h2>
                </div>
 
-               <div>
+               <form onSubmit={handleSubmit} className="space-y-5">
+                  {isError && (
+                     <div className="bg-red-50 border border-red-400 text-red-700 px-3 py-2 rounded">
+                        {typeof error === "string"
+                           ? error
+                           : "Login failed. Please try again."}
+                     </div>
+                  )}
+
+                  <div>
+                     <label className="block text-sm font-medium">Email</label>
+                     <input
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        className="mt-1 w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+                     />
+                     {fieldErrors.email && (
+                        <p className="text-red-500 text-sm">{fieldErrors.email}</p>
+                     )}
+                  </div>
+
+                  <div>
+                     <label className="block text-sm font-medium">Password</label>
+                     <input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        className="mt-1 w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+                     />
+                     {fieldErrors.password && (
+                        <p className="text-red-500 text-sm">{fieldErrors.password}</p>
+                     )}
+                  </div>
+
+                  <div className="text-right">
+                     <Link
+                        href="/forgot-password"
+                        className="text-sm text-indigo-600 hover:underline">
+                        Forgot password?
+                     </Link>
+                  </div>
+
                   <button
                      type="submit"
                      disabled={isPending}
-                     className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                     {isPending ? "Signing in..." : "Sign in"}
+                     className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
+                     {isPending ? "Signing in..." : "Log In"}
                   </button>
-               </div>
 
-               <div className="text-center">
-                  <Link href="/register" className="text-blue-600 hover:text-blue-500">
-                     Don&apos;t have an account? Register
-                  </Link>
-               </div>
-            </form>
+                  <p className="text-center text-sm mt-4">
+                     Not member?{" "}
+                     <Link href="/pricing" className="text-indigo-600 hover:underline">
+                        Signup here
+                     </Link>
+                  </p>
+               </form>
+            </div>
          </div>
       </div>
    )

@@ -4,6 +4,7 @@ import {AuthProvider} from "@/providers/AuthProvider"
 import QueryProvider from "@/providers/QueryProvider"
 import {APP_DESCRIPTION, APP_NAME} from "./metadata"
 import {Camera} from "lucide-react"
+import Navbar from "@/components/dashboard/navbar"
 
 export const metadata: Metadata = {
    title: APP_NAME,
@@ -20,6 +21,9 @@ export default function RootLayout({
          <body className="min-h-screen flex flex-col">
             <QueryProvider>
                <AuthProvider>
+                  <div>
+                     <Navbar />
+                  </div>
                   <main className="flex-1">{children}</main>
                </AuthProvider>
             </QueryProvider>
