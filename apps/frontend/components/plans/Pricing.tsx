@@ -1,10 +1,13 @@
 "use client"
 
-import {plans} from "@/utils/plans"
+import {usePlans} from "@/queries/plans"
 import {useRouter} from "next/navigation"
 
 export default function Pricing() {
+   const {data: plans} = usePlans()
    const router = useRouter()
+
+   console.log("Plan:", plans)
 
    const handleBuy = (id: number) => {
       router.push(`/register?plan_id=${id}`)
@@ -20,11 +23,11 @@ export default function Pricing() {
          </div>
 
          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-            {plans.map(plan => (
+            {plans?.map(plan => (
                <div
                   key={plan.name}
                   className={`rounded-2xl border bg-white p-6 flex flex-col shadow-sm ${
-                     plan.highlight ? "border-blue-500 ring-2 ring-blue-500" : ""
+                     plan?.highlight ? "border-blue-500 ring-2 ring-blue-500" : ""
                   }`}>
                   {plan.highlight && (
                      <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full w-fit mb-3">
