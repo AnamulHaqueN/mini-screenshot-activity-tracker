@@ -6,6 +6,7 @@
 - insecure "me" call
   - react query caching/previous issue
 - ISO timing
+- proper error message show to frontend on api failure
 
 ### Screenshots
 

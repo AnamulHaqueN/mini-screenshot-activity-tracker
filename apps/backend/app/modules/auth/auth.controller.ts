@@ -1,13 +1,12 @@
-import Company from '#models/company'
-import Plan from '#models/plan'
-import User from '#models/user'
 import { loginValidator, signUpValidator } from '#modules/auth/auth.validator'
 import type { HttpContext } from '@adonisjs/core/http'
-import hash from '@adonisjs/core/services/hash'
-import { cookieConfig } from '../../helper/jwt_cookie.js'
-import env from '#start/env'
+import { AuthService } from './auth.service.js'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class AuthController {
+   constructor(private authService: AuthService) {}
+
    async register({ request, response }: HttpContext) {
       const data = await request.validateUsing(signUpValidator)
 
@@ -80,15 +79,7 @@ export default class AuthController {
 
       return response.ok({
          message: 'Login successful',
-         data: {
-            user: {
-               id: user.id,
-               name: user.name,
-               email: user.email,
-               role: user.role,
-               companyId: user.companyId,
-            },
-         },
+         data: { user },
       })
    }
 
@@ -96,14 +87,12 @@ export default class AuthController {
       response.clearCookie('jwt_token')
       auth.use('web').logout()
       response.clearCookie('role')
-
       return response.ok({ message: 'Logout successful' })
    }
 
    async me({ auth, response }: HttpContext) {
       const user = auth.getUserOrFail()
       await user.load('company')
-
       return response.ok({
          data: {
             id: user.id,

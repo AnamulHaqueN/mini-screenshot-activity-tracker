@@ -12,7 +12,43 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     * The method is used for handling errors and returning
     * response to the client
     */
-   async handle(error: unknown, ctx: HttpContext) {
+   async handle(error: any, ctx: HttpContext) {
+      if (error.code === 'E_INVALID_CREDENTIALS') {
+         return ctx.response.status(401).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'EMPLOYEE_EXISTS') {
+         return ctx.response.status(409).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'E_FAILED_TO_UPLOAD_SCREENSHOT') {
+         return ctx.response.status(500).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'EMPLOYEE_NOT_FOUND') {
+         return ctx.response.status(404).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'MISSING_REQUIRED_FIELDS') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'INVALID_DATE_FORMAT') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
       return super.handle(error, ctx)
    }
 
