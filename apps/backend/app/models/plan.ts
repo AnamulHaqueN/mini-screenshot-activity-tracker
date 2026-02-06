@@ -14,7 +14,7 @@ export default class Plan extends BaseModel {
    declare description?: string | null
 
    @column()
-   declare pricePerEmployee: number
+   declare price: number
 
    @column()
    declare period?: string | null

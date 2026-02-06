@@ -45,7 +45,7 @@ export default function Pricing() {
                   <p className="text-sm text-gray-500 mt-1">{plan.note}</p>
 
                   <ul className="mt-6 space-y-2 text-sm text-gray-700 flex-1">
-                     {plan.features.map(feature => (
+                     {plan.features?.map(feature => (
                         <li key={feature} className="flex items-start gap-2">
                            <span className="text-green-500">✔</span>
                            {feature}
