@@ -6,7 +6,6 @@ import {useState} from "react"
 import {RegisterInput, registerSchema} from "../../../schemas/register"
 import {ZodError} from "zod"
 import Link from "next/link"
-import {usePlans} from "@/queries/plans"
 import {plans} from "@/utils/plans"
 
 type FieldErrors = {
@@ -35,20 +34,29 @@ export default function Register() {
 
       try {
          const validateData: RegisterInput = registerSchema.parse({
-            ownerName: formData.get("firstName") + " " + formData.get("lastName"),
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
             ownerEmail: formData.get("ownerEmail"),
-            password: formData.get("password"),
             companyName: formData.get("companyName"),
+            password: formData.get("password"),
             planId,
          })
 
-         await mutateAsync(validateData)
+         const configuredData = {
+            ownerName: validateData.firstName + " " + validateData.lastName,
+            ...validateData,
+         }
+
+         await mutateAsync(configuredData)
          router.push("/login")
       } catch (err) {
+         console.log("error", err)
          if (err instanceof ZodError) {
             const errors: FieldErrors = {}
             err.issues.forEach(issue => {
                const field = issue.path[0] as keyof FieldErrors
+               console.log("field", field)
+               console.log("message", issue.message)
                errors[field] = issue.message
             })
             setFieldErrors(errors)
@@ -80,7 +88,6 @@ export default function Register() {
                      </label>
                      <input
                         name="companyName"
-                        required
                         className="mt-1 w-full border rounded-md px-3 py-2"
                         placeholder="Company Name"
                      />
@@ -96,7 +103,6 @@ export default function Register() {
                      <input
                         name="ownerEmail"
                         type="email"
-                        required
                         className="mt-1 w-full border rounded-md px-3 py-2"
                         placeholder="Enter your email"
                      />
@@ -112,7 +118,6 @@ export default function Register() {
                         </label>
                         <input
                            name="firstName"
-                           required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="First name"
                         />
@@ -126,7 +131,6 @@ export default function Register() {
                         </label>
                         <input
                            name="lastName"
-                           required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="Last name"
                         />
@@ -144,7 +148,6 @@ export default function Register() {
                         <input
                            type="password"
                            name="password"
-                           required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="Enter password"
                         />
@@ -158,7 +161,6 @@ export default function Register() {
                         </label>
                         <input
                            type="password"
-                           required
                            className="mt-1 w-full border rounded-md px-3 py-2"
                            placeholder="Confirm password"
                         />
