@@ -18,6 +18,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
             message: error.message,
          })
       }
+
+      if (error.code === 'EMPLOYEE_EXISTS') {
+         return ctx.response.status(409).json({
+            message: error.message,
+         })
+      }
+
       return super.handle(error, ctx)
    }
 
