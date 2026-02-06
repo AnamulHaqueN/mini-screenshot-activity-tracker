@@ -1,26 +1,11 @@
 "use client"
-
-import {useState} from "react"
 import {useRouter} from "next/navigation"
-import {
-   Eye,
-   Clock,
-   Shield,
-   BarChart3,
-   Users,
-   Camera,
-   ArrowRight,
-   CheckCircle2,
-   Menu,
-   X,
-} from "lucide-react"
+import {Shield, BarChart3, Camera, ArrowRight, CheckCircle2} from "lucide-react"
 import {useMe} from "@/queries/auth"
 import {APP_NAME} from "./metadata"
-import Navbar from "@/components/dashboard/navbar"
 
 export default function HomePage() {
    const router = useRouter()
-   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
    const {data: user} = useMe()
 
@@ -38,14 +23,6 @@ export default function HomePage() {
 
    const handleSignIn = () => {
       router.push("/login")
-   }
-
-   const handleDashboard = () => {
-      if (user?.role === "admin") {
-         router.push("/dashboard")
-      } else {
-         router.push("/screenshots")
-      }
    }
 
    return (
