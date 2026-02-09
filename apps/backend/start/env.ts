@@ -19,10 +19,10 @@ export default await Env.create(new URL('../', import.meta.url), {
    LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']),
 
    /*
- |----------------------------------------------------------
- | Variables for configuring database connection
- |----------------------------------------------------------
- */
+|----------------------------------------------------------
+| Variables for configuring database connection
+|----------------------------------------------------------
+*/
    DB_HOST: Env.schema.string({ format: 'host' }),
    DB_PORT: Env.schema.number(),
    DB_USER: Env.schema.string(),
@@ -30,9 +30,16 @@ export default await Env.create(new URL('../', import.meta.url), {
    DB_DATABASE: Env.schema.string(),
 
    /*
-  |----------------------------------------------------------
-  | Variables for configuring session package
-  |----------------------------------------------------------
-  */
+|----------------------------------------------------------
+| Variables for configuring session package
+|----------------------------------------------------------
+*/
    SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
+
+   /*
+|----------------------------------------------------------
+| Variables for configuring the limiter package
+|----------------------------------------------------------
+*/
+   LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
 })
