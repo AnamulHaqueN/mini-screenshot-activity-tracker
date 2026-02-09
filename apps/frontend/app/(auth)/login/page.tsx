@@ -79,9 +79,9 @@ export default function LoginPage() {
                <form onSubmit={handleSubmit} className="space-y-5">
                   {isError && (
                      <div className="bg-red-50 border border-red-400 text-red-700 px-3 py-2 rounded">
-                        {typeof error === "string"
-                           ? error
-                           : "Login failed. Please try again."}
+                        {error?.response?.status === 429
+                           ? "Too many login attempts. Please try again later."
+                           : error?.response?.data?.message || "Login failed. Please try again."}
                      </div>
                   )}
 
