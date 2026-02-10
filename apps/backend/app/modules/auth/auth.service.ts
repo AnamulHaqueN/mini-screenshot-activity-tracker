@@ -128,22 +128,25 @@ export class AuthService {
          .first()
 
       if (!otpRecord) {
-         throw new Exception('Invalid or expired OTP.', { status: 400 })
+         throw new Exception('Invalid or expired OTP', { status: 400, code: 'INVALID_OTP' })
       }
 
       if (otpRecord.expiresAt < DateTime.now()) {
          await otpRecord.delete()
-         throw new Exception('OTP has expired. Please request a new one.', { status: 400 })
+         throw new Exception('OTP has expired. Please request a new one.', {
+            status: 400,
+            code: 'OTP_EXPIRED',
+         })
       }
 
       const isValid = await hash.verify(otpRecord.otp, payload.otp)
       if (!isValid) {
-         throw new Exception('Invalid OTP.', { status: 400 })
+         throw new Exception('Invalid OTP', { status: 400, code: 'INVALID_OTP' })
       }
 
       const user = await User.query().where('email', payload.email).first()
       if (!user) {
-         throw new Exception('User not found.', { status: 404 })
+         throw new Exception('User not found', { status: 404, code: 'USER_NOT_FOUND' })
       }
 
       user.password = payload.password
