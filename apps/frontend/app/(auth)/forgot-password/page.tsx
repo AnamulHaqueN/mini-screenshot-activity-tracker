@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
       } catch (err) {
          if (err instanceof ZodError) {
             const errors: FieldErrors = {}
-            err.issues.forEach((issue) => {
+            err.issues.forEach(issue => {
                const field = issue.path[0] as keyof FieldErrors
                errors[field] = issue.message
             })
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
       } catch (err) {
          if (err instanceof ZodError) {
             const errors: FieldErrors = {}
-            err.issues.forEach((issue) => {
+            err.issues.forEach(issue => {
                const field = issue.path[0] as keyof FieldErrors
                errors[field] = issue.message
             })
@@ -167,7 +167,10 @@ export default function ForgotPasswordPage() {
                      </p>
                   </form>
                ) : (
-                  <form key="otp-step" onSubmit={handleResetPassword} className="space-y-5">
+                  <form
+                     key="otp-step"
+                     onSubmit={handleResetPassword}
+                     className="space-y-5">
                      <div>
                         <label className="block text-sm font-medium">OTP Code</label>
                         <input
@@ -223,8 +226,8 @@ export default function ForgotPasswordPage() {
                         <button
                            type="button"
                            onClick={() => setStep("email")}
-                           className="text-indigo-600 hover:underline">
-                           Use a different email
+                           className="text-indigo-600 hover:underline cursor-pointer">
+                           Generate OTP again
                         </button>
                      </p>
                   </form>
