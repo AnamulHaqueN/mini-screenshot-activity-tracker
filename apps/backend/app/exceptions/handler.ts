@@ -31,7 +31,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
          })
       }
 
-      if (error.code === 'EMPLOYEE_NOT_FOUND') {
+      if (error.code === 'EMPLOYEE_NOT_FOUND' || error.code === 'USER_NOT_FOUND') {
          return ctx.response.status(404).json({
             message: error.message,
          })
@@ -46,6 +46,24 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       if (error.code === 'INVALID_DATE_FORMAT') {
          return ctx.response.status(400).json({
             message: error.message,
+         })
+      }
+
+      if (error.code === 'INVALID_OTP') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
+      if (error.code === 'OTP_EXPIRED') {
+         return ctx.response.status(400).json({
+            message: error.message,
+         })
+      }
+
+      if (error.status === 429) {
+         return ctx.response.status(429).json({
+            message: 'Too many requests. Please try again later.',
          })
       }
 

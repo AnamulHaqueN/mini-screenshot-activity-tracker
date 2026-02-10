@@ -1,4 +1,9 @@
-import { loginValidator, signUpValidator } from '#modules/auth/auth.validator'
+import {
+   forgotPasswordValidator,
+   loginValidator,
+   resetPasswordValidator,
+   signUpValidator,
+} from '#modules/auth/auth.validator'
 import type { HttpContext } from '@adonisjs/core/http'
 import { AuthService } from './auth.service.js'
 import { inject } from '@adonisjs/core'
@@ -42,5 +47,17 @@ export default class AuthController {
             company: user.company,
          },
       })
+   }
+
+   async forgotPassword({ request, response }: HttpContext) {
+      const payload = await request.validateUsing(forgotPasswordValidator)
+      const res = await this.authService.forgotPassword(payload)
+      return response.ok(res)
+   }
+
+   async resetPassword({ request, response }: HttpContext) {
+      const payload = await request.validateUsing(resetPasswordValidator)
+      const res = await this.authService.resetPassword(payload)
+      return response.ok(res)
    }
 }

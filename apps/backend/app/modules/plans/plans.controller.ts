@@ -1,5 +1,6 @@
 import Plan from '#models/plan'
 import type { HttpContext } from '@adonisjs/core/http'
+import { planValidator } from './plan.validator.js'
 
 export default class PlansController {
    async index({ response }: HttpContext) {
@@ -7,19 +8,12 @@ export default class PlansController {
       return response.ok({ data: plans })
    }
    async store({ request, response }: HttpContext) {
-      const data = request.only(['name', 'price'])
-
-      const plans = await Plan.create({
-         name: data.name,
-         pricePerEmployee: data.price,
-      })
+      const payload = await request.validateUsing(planValidator)
+      const plan = await Plan.create(payload)
 
       return response.created({
          message: 'Plan created successfully',
-         data: {
-            name: plans.name,
-            price: plans.pricePerEmployee,
-         },
+         data: plan,
       })
    }
 }

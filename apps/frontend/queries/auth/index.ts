@@ -52,3 +52,23 @@ export const useRegister = () => {
     },
   });
 };
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: authService.forgotPassword,
+    retry: false,
+    onError: (error: ApiError) => {
+      console.error(error.response?.data?.message || "Failed to send OTP");
+    },
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: authService.resetPassword,
+    retry: false,
+    onError: (error: ApiError) => {
+      console.error(error.response?.data?.message || "Password reset failed");
+    },
+  });
+};

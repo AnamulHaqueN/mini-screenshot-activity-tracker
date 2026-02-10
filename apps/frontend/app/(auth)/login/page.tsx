@@ -52,7 +52,7 @@ export default function LoginPage() {
    return (
       <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
          {/* LEFT PANEL */}
-         <div className="hidden md:flex bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-white flex-col items-center justify-center p-12">
+         <div className="hidden md:flex bg-linear-to-r from-purple-900 via-indigo-900 to-purple-900 text-white flex-col items-center justify-center p-12">
             <h1 className="text-3xl font-bold text-center mb-8">
                Our white label mobile
                <br /> app & web services.
@@ -79,9 +79,10 @@ export default function LoginPage() {
                <form onSubmit={handleSubmit} className="space-y-5">
                   {isError && (
                      <div className="bg-red-50 border border-red-400 text-red-700 px-3 py-2 rounded">
-                        {typeof error === "string"
-                           ? error
-                           : "Login failed. Please try again."}
+                        {error?.response?.status === 429
+                           ? "Too many login attempts. Please try again later."
+                           : error?.response?.data?.message ||
+                             "Login failed. Please try again."}
                      </div>
                   )}
 
@@ -103,7 +104,7 @@ export default function LoginPage() {
                      <input
                         name="password"
                         type="password"
-                        placeholder="Password"
+                        placeholder="Password (4+ characters)"
                         className="mt-1 w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500"
                      />
                      {fieldErrors.password && (
