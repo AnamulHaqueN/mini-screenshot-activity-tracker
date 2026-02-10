@@ -36,3 +36,32 @@ loginValidator.messagesProvider = new SimpleMessagesProvider({
    'password.required': 'Password is required to login.',
    'password.minLength': 'Password must be at least 4 characters long.',
 })
+
+const forgotPasswordSchema = vine.object({
+   email: vine.string().trim().email().normalizeEmail(),
+})
+
+export const forgotPasswordValidator = vine.compile(forgotPasswordSchema)
+forgotPasswordValidator.messagesProvider = new SimpleMessagesProvider({
+   'email.required': 'Email is required.',
+   'email.email': 'Please enter a valid email address.',
+})
+
+const resetPasswordSchema = vine.object({
+   email: vine.string().trim().email().normalizeEmail(),
+   otp: vine.string().fixedLength(6),
+   password: vine.string().minLength(4).maxLength(255),
+   password_confirmation: vine.string().sameAs('password'),
+})
+
+export const resetPasswordValidator = vine.compile(resetPasswordSchema)
+resetPasswordValidator.messagesProvider = new SimpleMessagesProvider({
+   'email.required': 'Email is required.',
+   'email.email': 'Please enter a valid email address.',
+   'otp.required': 'OTP code is required.',
+   'otp.fixedLength': 'OTP must be exactly 6 digits.',
+   'password.required': 'Password is required.',
+   'password.minLength': 'Password must be at least 4 characters long.',
+   'password.maxLength': 'Password cannot be longer than 255 characters.',
+   'password_confirmation.sameAs': 'Passwords do not match.',
+})

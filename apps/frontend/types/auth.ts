@@ -17,3 +17,14 @@ export interface IAuthResponse {
   message: string;
   data: User;
 }
+
+export interface IForgotPassword {
+  email: string;
+}
+
+export interface IResetPassword {
+  email: string;
+  otp: string;
+  password: string;
+  password_confirmation: string;
+}

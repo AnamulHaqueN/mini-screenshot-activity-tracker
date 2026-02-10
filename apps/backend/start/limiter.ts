@@ -22,3 +22,10 @@ export const loginThrottle = limiter.define('login', (ctx) => {
       .usingKey(`login_${ctx.request.ip()}`)
       .blockFor('2 minutes')
 })
+
+export const forgotPasswordThrottle = limiter.define('forgotPassword', (ctx) => {
+   return limiter
+      .allowRequests(3)
+      .every('15 minutes')
+      .usingKey(`forgot_password_${ctx.request.ip()}`)
+})
