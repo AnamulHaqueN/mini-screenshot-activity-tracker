@@ -1,6 +1,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
-import { forgotPasswordThrottle, loginThrottle } from '#start/limiter'
+import { forgotPasswordThrottle, loginThrottle, resetPasswordThrottle } from '#start/limiter'
 
 const AuthController = () => import('#modules/auth/auth.controller')
 
@@ -12,7 +12,9 @@ router
       router
          .post('/auth/forgot-password', [AuthController, 'forgotPassword'])
          .use(forgotPasswordThrottle)
-      router.post('/auth/reset-password', [AuthController, 'resetPassword'])
+      router
+         .post('/auth/reset-password', [AuthController, 'resetPassword'])
+         .use(resetPasswordThrottle)
    })
    .prefix('/api')
 
