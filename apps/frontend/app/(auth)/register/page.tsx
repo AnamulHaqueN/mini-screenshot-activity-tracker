@@ -6,7 +6,7 @@ import {useState} from "react"
 import {RegisterInput, registerSchema} from "../../../schemas/register"
 import {ZodError} from "zod"
 import Link from "next/link"
-import {plans} from "@/utils/plans"
+import {usePlans} from "@/queries/plans"
 
 type FieldErrors = {
    firstName?: string
@@ -23,6 +23,7 @@ export default function Register() {
    const router = useRouter()
    const searchParams = useSearchParams()
    const planId = Number(searchParams.get("plan_id"))
+   const {data: plans} = usePlans()
 
    const selectedPlan = plans?.find(p => p.id === planId)
 
