@@ -95,9 +95,11 @@ export class AuthService {
    async forgotPassword(payload: ForgotPasswordType) {
       const user = await User.query().where('email', payload.email).first()
 
-      // Always return success to prevent email enumeration
       if (!user) {
-         return { message: 'If an account exists with this email, you will receive an OTP shortly.' }
+         throw new Exception('Invalid credentials', {
+            status: 401,
+            code: 'E_INVALID_CREDENTIALS',
+         })
       }
 
       // Delete any existing OTPs for this email
@@ -106,11 +108,11 @@ export class AuthService {
       // Generate 6-digit OTP
       const otp = crypto.randomInt(100000, 999999).toString()
 
-      // Store hashed OTP with 10-minute expiry
+      // Store hashed OTP with 2-minute expiry
       await PasswordResetOtp.create({
          email: payload.email,
          otp: await hash.make(otp),
-         expiresAt: DateTime.now().plus({ minutes: 10 }),
+         expiresAt: DateTime.now().plus({ minutes: 2 }),
       })
 
       // TODO: Replace with actual email sending
