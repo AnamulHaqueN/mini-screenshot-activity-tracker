@@ -127,6 +127,11 @@ export default function ForgotPasswordPage() {
                         ? "Enter your email to receive an OTP code."
                         : `Enter the 6-digit code sent to ${email}`}
                   </p>
+                  {step === "otp" && (
+                     <p className="text-sm text-amber-600 mt-2">
+                        OTP will expire in 2 minutes.
+                     </p>
+                  )}
                </div>
 
                {apiError && (
