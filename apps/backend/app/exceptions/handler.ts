@@ -61,6 +61,12 @@ export default class HttpExceptionHandler extends ExceptionHandler {
          })
       }
 
+      if (error.status === 429) {
+         return ctx.response.status(429).json({
+            message: 'Too many requests. Please try again later.',
+         })
+      }
+
       return super.handle(error, ctx)
    }
 
