@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
                )}
 
                {step === "email" ? (
-                  <form onSubmit={handleSendOtp} className="space-y-5">
+                  <form key="email-step" onSubmit={handleSendOtp} className="space-y-5">
                      <div>
                         <label className="block text-sm font-medium">Email</label>
                         <input
@@ -167,7 +167,7 @@ export default function ForgotPasswordPage() {
                      </p>
                   </form>
                ) : (
-                  <form onSubmit={handleResetPassword} className="space-y-5">
+                  <form key="otp-step" onSubmit={handleResetPassword} className="space-y-5">
                      <div>
                         <label className="block text-sm font-medium">OTP Code</label>
                         <input
