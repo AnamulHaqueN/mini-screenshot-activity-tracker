@@ -4,19 +4,49 @@ import User from '#models/user'
 import { Exception } from '@adonisjs/core/exceptions'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
+import axios from 'axios'
+import fs from 'node:fs'
 
 export class ScreenshotService {
+   async uploadToBunny(screenshot: any, user: any) {
+      const fileName = `${Date.now()}_${screenshot.clientName}`
+      const remotePath = `screenshots/${user.companyId}/${user.id}/${fileName}`
+      const fileBuffer = fs.readFileSync(screenshot.tmpPath!)
+
+      await axios.put(
+         `https://storage.bunnycdn.com/${process.env.CDN_STORAGE_ZONE}/${remotePath}`,
+         fileBuffer,
+         {
+            headers: {
+               'AccessKey': process.env.CDN_ACCESS_KEY,
+               'Content-Type': screenshot.type, // e.g. image/png
+            },
+            maxBodyLength: Infinity,
+         }
+      )
+
+      const fileUrl = `${process.env.CDN_HOST}/${remotePath}`
+
+      return {
+         filePath: remotePath,
+         url: fileUrl,
+      }
+   }
+
+   async uploadToCloudinary(screenshot: any, user: any) {
+      return await cloudinary.uploader.upload(screenshot.tmpPath!, {
+         folder: `screenshots/${user.companyId}/${user.id}`,
+         resource_type: 'image',
+         format: screenshot.extname,
+         quality: 'auto',
+         public_id: `${Date.now()}_${screenshot.clientName}`,
+      })
+   }
+
    async upload(ctx: HttpContext, screenshot: any) {
       const user = ctx.auth.getUserOrFail()
       try {
-         // Upload to Cloudinary
-         const uploadResult = await cloudinary.uploader.upload(screenshot.tmpPath!, {
-            folder: `screenshots/${user.companyId}/${user.id}`,
-            resource_type: 'image',
-            format: screenshot.extname,
-            quality: 'auto',
-            public_id: `${Date.now()}_${screenshot.clientName}`,
-         })
+         const uploadResult = await this.uploadToCloudinary(screenshot, user)
 
          // Extract date, hour, and minute bucket from capture time
          const captureDateTime = DateTime.now().setZone('Asia/Dhaka')
