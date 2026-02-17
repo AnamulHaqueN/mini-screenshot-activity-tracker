@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 
 const uploadSchema = vine.object({
    screenshot: vine.file({
-      size: '10mb',
+      size: '5mb',
       extnames: ['jpg', 'jpeg', 'png', 'webp'],
    }),
 
@@ -25,7 +25,7 @@ export const uploadScreenshotValidator = vine.compile(uploadSchema)
 uploadScreenshotValidator.messagesProvider = new SimpleMessagesProvider({
    'screenshot.required': 'Screenshot is required.',
    'screenshot.file': 'Screenshot must be a valid file.',
-   'screenshot.size': 'Screenshot must be less than 10MB.',
+   'screenshot.size': 'Screenshot must be less than 5MB.',
    'screenshot.extname': 'Screenshot must be a JPG, JPEG, PNG, or WebP file.',
    'capturedAt.iso': 'Captured at must be a valid ISO 8601 date time.',
 })
