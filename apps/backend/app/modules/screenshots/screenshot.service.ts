@@ -26,7 +26,8 @@ export class ScreenshotService {
          {
             headers: {
                'AccessKey': env.get('CDN_ACCESS_KEY'),
-               'Content-Type': screenshot.type, // e.g. image/png
+               'Content-Type': screenshot.type || 'application/octet-stream', // e.g. image/png
+               'Content-Length': fileBuffer.length,
             },
             maxBodyLength: Infinity,
          }
