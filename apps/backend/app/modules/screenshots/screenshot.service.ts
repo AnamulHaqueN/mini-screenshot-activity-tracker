@@ -21,7 +21,7 @@ export class ScreenshotService {
       })
 
       await axios.put(
-         `https://storage.bunnycdn.com/${env.get('CDN_STORAGE_ZONE')}/${remotePath}`,
+         `https://storage.bunnycdn.com/${env.get('CDN_BUCKET_NAME')}/${remotePath}`,
          fileBuffer,
          {
             headers: {
@@ -34,7 +34,7 @@ export class ScreenshotService {
       )
 
       // Example URL: https://storage.bunnycdn.com/ezystaff-storage/screenshots/12/55/170817123_test.png
-      const fileUrl = `${env.get('CDN_FILE_HOST')}/${remotePath}`
+      const fileUrl = `${env.get('CDN_STORAGE_ZONE')}/${remotePath}`
       console.log('Uploaded to bunny cdn', {
          fileUrl,
       })
@@ -65,7 +65,7 @@ export class ScreenshotService {
 
          // Save screenshot record
          const screenshotRecord = await Screenshot.create({
-            filePath: uploadResult.filePath,
+            filePath: uploadResult.url,
             userId: user.id,
             companyId: user.companyId,
             capturedAt: captureDateTime,
