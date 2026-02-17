@@ -6,26 +6,31 @@ import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import axios from 'axios'
 import fs from 'node:fs'
+import env from '#start/env'
+import path from 'node:path'
+import { cuid } from '@adonisjs/core/helpers'
 
 export class ScreenshotService {
    async uploadToBunny(screenshot: any, user: any) {
-      const fileName = `${Date.now()}_${screenshot.clientName}`
+      const ext = path.extname(screenshot.clientName)
+      const fileName = `${Date.now()}_${cuid()}${ext}`
       const remotePath = `screenshots/${user.companyId}/${user.id}/${fileName}`
       const fileBuffer = fs.readFileSync(screenshot.tmpPath!)
 
       await axios.put(
-         `https://storage.bunnycdn.com/${process.env.CDN_STORAGE_ZONE}/${remotePath}`,
+         `https://storage.bunnycdn.com/${env.get('CDN_STORAGE_ZONE')}/${remotePath}`,
          fileBuffer,
          {
             headers: {
-               'AccessKey': process.env.CDN_ACCESS_KEY,
+               'AccessKey': env.get('CDN_ACCESS_KEY'),
                'Content-Type': screenshot.type, // e.g. image/png
             },
             maxBodyLength: Infinity,
          }
       )
 
-      const fileUrl = `${process.env.CDN_HOST}/${remotePath}`
+      // Example URL: https://storage.bunnycdn.com/ezystaff-storage/screenshots/12/55/170817123_test.png
+      const fileUrl = `${env.get('CDN_FILE_HOST')}/${remotePath}`
 
       return {
          filePath: remotePath,
@@ -46,18 +51,14 @@ export class ScreenshotService {
    async upload(ctx: HttpContext, screenshot: any) {
       const user = ctx.auth.getUserOrFail()
       try {
-         const uploadResult = await this.uploadToCloudinary(screenshot, user)
+         const uploadResult = await this.uploadToBunny(screenshot, user)
 
          // Extract date, hour, and minute bucket from capture time
          const captureDateTime = DateTime.now().setZone('Asia/Dhaka')
-         const date = captureDateTime.toISODate()!
-         const hour = captureDateTime.hour
-         const minute = captureDateTime.minute
-         const minuteBucket = Math.floor(minute / 10) * 10 // Group by 10-minute intervals
 
          // Save screenshot record
          const screenshotRecord = await Screenshot.create({
-            filePath: uploadResult.secure_url,
+            filePath: uploadResult.filePath,
             userId: user.id,
             companyId: user.companyId,
             capturedAt: captureDateTime,
@@ -66,11 +67,8 @@ export class ScreenshotService {
 
          return {
             id: screenshotRecord.id,
-            filePath: screenshotRecord.filePath,
+            filePath: uploadResult.filePath,
             capturedAt: screenshotRecord.capturedAt,
-            date: date,
-            hour: hour,
-            minuteBucket: minuteBucket,
          }
       } catch (error) {
          throw new Exception(`Failed to upload screenshot: ${error.message}`, {
