@@ -20,21 +20,17 @@ export class ScreenshotService {
          remotePath,
       })
 
-      await axios.put(
-         `https://storage.bunnycdn.com/${env.get('CDN_BUCKET_NAME')}/${remotePath}`,
-         fileBuffer,
-         {
-            headers: {
-               'AccessKey': env.get('CDN_ACCESS_KEY'),
-               'Content-Type': screenshot.type || 'application/octet-stream', // e.g. image/png
-               'Content-Length': fileBuffer.length,
-            },
-            maxBodyLength: Infinity,
-         }
-      )
+      await axios.put(`${env.get('CDN_FILE_HOST')}/${remotePath}`, fileBuffer, {
+         headers: {
+            'AccessKey': env.get('CDN_ACCESS_KEY'),
+            'Content-Type': screenshot.type || 'application/octet-stream', // e.g. image/png
+            'Content-Length': fileBuffer.length,
+         },
+         maxBodyLength: Infinity,
+      })
 
-      // Example URL: https://storage.bunnycdn.com/ezystaff-storage/screenshots/12/55/170817123_test.png
-      const fileUrl = `${env.get('CDN_STORAGE_ZONE')}/${remotePath}`
+      // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
+      const fileUrl = `${env.get('CDN_PULL_ZONE')}/${remotePath}`
       console.log('Uploaded to bunny cdn', {
          fileUrl,
       })
