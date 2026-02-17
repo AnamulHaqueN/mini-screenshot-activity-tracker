@@ -8,14 +8,17 @@ import axios from 'axios'
 import fs from 'node:fs'
 import env from '#start/env'
 import path from 'node:path'
-import { cuid } from '@adonisjs/core/helpers'
 
 export class ScreenshotService {
    async uploadToBunny(screenshot: any, user: any) {
       const ext = path.extname(screenshot.clientName)
-      const fileName = `${Date.now()}_${cuid()}${ext}`
+      const fileName = `${Date.now()}${ext}`
       const remotePath = `screenshots/${user.companyId}/${user.id}/${fileName}`
       const fileBuffer = fs.readFileSync(screenshot.tmpPath!)
+
+      console.log('Uploading to bunny cdn', {
+         remotePath,
+      })
 
       await axios.put(
          `https://storage.bunnycdn.com/${env.get('CDN_STORAGE_ZONE')}/${remotePath}`,
@@ -31,6 +34,9 @@ export class ScreenshotService {
 
       // Example URL: https://storage.bunnycdn.com/ezystaff-storage/screenshots/12/55/170817123_test.png
       const fileUrl = `${env.get('CDN_FILE_HOST')}/${remotePath}`
+      console.log('Uploaded to bunny cdn', {
+         fileUrl,
+      })
 
       return {
          filePath: remotePath,
