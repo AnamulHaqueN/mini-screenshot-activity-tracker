@@ -20,14 +20,18 @@ export class ScreenshotService {
          remotePath,
       })
 
-      await axios.put(`${env.get('CDN_FILE_HOST')}/${remotePath}`, fileBuffer, {
-         headers: {
-            'AccessKey': env.get('CDN_ACCESS_KEY'),
-            'Content-Type': screenshot.type || 'application/octet-stream', // e.g. image/png
-            'Content-Length': fileBuffer.length,
-         },
-         maxBodyLength: Infinity,
-      })
+      await axios.put(
+         `${env.get('CDN_FILE_HOST')}/${env.get('CDN_STORAGE_ZONE')}/${remotePath}`,
+         fileBuffer,
+         {
+            headers: {
+               'AccessKey': env.get('CDN_ACCESS_KEY'),
+               'Content-Type': screenshot.type || 'application/octet-stream', // e.g. image/png
+               'Content-Length': fileBuffer.length,
+            },
+            maxBodyLength: Infinity,
+         }
+      )
 
       // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
       const fileUrl = `${env.get('CDN_PULL_ZONE')}/${remotePath}`

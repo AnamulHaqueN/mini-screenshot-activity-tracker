@@ -23,7 +23,7 @@ export default class ScreenshotsController {
    }
 
    /**
-    * Get screenshots grouped by hour and 5-minute intervals (Owner only)
+    * Get screenshots grouped by hour and 10-minute intervals (Owner only)
     * This is the main view for the dashboard
     */
    async index(ctx: HttpContext) {
