@@ -114,9 +114,10 @@ export class ScreenshotService {
             const screenshotData = await Promise.all(
                screenshots.map(async (s: any) => {
                   // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
-                  const fileUrl = s.filePath.contains('http')
+                  const fileUrl = s.filePath.includes('http')
                      ? s.filePath
                      : `${env.get('CDN_PULL_ZONE')}/${s.filePath}`
+
                   const data: any = {
                      id: s.id,
                      fileUrl,
