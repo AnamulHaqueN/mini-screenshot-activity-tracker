@@ -58,6 +58,7 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/limiter": "^2.4.0",
     "@adonisjs/lucid": "^21.6.1",
+    "@adonisjs/mail": "^9.2.2",
     "@adonisjs/session": "^7.7.1",
     "@faker-js/faker": "^10.2.0",
     "@types/jsonwebtoken": "^9.0.10",
