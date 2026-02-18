@@ -16,10 +16,6 @@ export class ScreenshotService {
       const remotePath = `screenshots/${user.companyId}/${user.id}/${fileName}`
       const fileBuffer = fs.readFileSync(screenshot.tmpPath!)
 
-      console.log('Uploading to bunny cdn', {
-         remotePath,
-      })
-
       await axios.put(
          `${env.get('CDN_FILE_HOST')}/${env.get('CDN_STORAGE_ZONE')}/${remotePath}`,
          fileBuffer,
@@ -35,9 +31,6 @@ export class ScreenshotService {
 
       // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
       const fileUrl = `${env.get('CDN_PULL_ZONE')}/${remotePath}`
-      console.log('Uploaded to bunny cdn', {
-         fileUrl,
-      })
 
       return {
          filePath: remotePath,
