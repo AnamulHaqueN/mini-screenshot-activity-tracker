@@ -15,11 +15,15 @@ export default class ScreenshotsController {
     */
    async upload(ctx: HttpContext) {
       const { screenshot } = await ctx.request.validateUsing(uploadScreenshotValidator)
-      const res = await this.screenshotService.upload(ctx, screenshot)
-      return ctx.response.created({
-         message: 'Screenshot uploaded successfully',
-         data: res,
-      })
+      try {
+         const res = await this.screenshotService.upload(ctx, screenshot)
+         return ctx.response.created({
+            message: 'Screenshot uploaded successfully',
+            data: res,
+         })
+      } catch (error) {
+         return ctx.response.internalServerError('Internal server panic')
+      }
    }
 
    /**
@@ -29,7 +33,11 @@ export default class ScreenshotsController {
    async index(ctx: HttpContext) {
       const employeeId = Number(ctx.request.input('employeeId'))
       const { date: dateString } = await ctx.request.validateUsing(groupedScreenshotsValidator)
-      const res = await this.screenshotService.index(ctx, employeeId, dateString)
-      return ctx.response.ok(res)
+      try {
+         const res = await this.screenshotService.index(ctx, employeeId, dateString)
+         return ctx.response.ok(res)
+      } catch (error) {
+         return ctx.response.internalServerError('Internal server panic')
+      }
    }
 }
