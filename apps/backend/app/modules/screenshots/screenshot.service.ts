@@ -29,12 +29,8 @@ export class ScreenshotService {
          }
       )
 
-      // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
-      const fileUrl = `${env.get('CDN_PULL_ZONE')}/${remotePath}`
-
       return {
          filePath: remotePath,
-         url: fileUrl,
       }
    }
 
@@ -58,7 +54,7 @@ export class ScreenshotService {
 
          // Save screenshot record
          const screenshotRecord = await Screenshot.create({
-            filePath: uploadResult.url,
+            filePath: uploadResult.filePath,
             userId: user.id,
             companyId: user.companyId,
             capturedAt: captureDateTime,
@@ -117,9 +113,11 @@ export class ScreenshotService {
          for (const [bucket, screenshots] of Object.entries(buckets)) {
             const screenshotData = await Promise.all(
                screenshots.map(async (s: any) => {
+                  // Example URL: https://ezystaff.b-cdn.net/screenshots/12/55/170817123_test.png
+                  const fileUrl = `${env.get('CDN_PULL_ZONE')}/${s.filePath}`
                   const data: any = {
                      id: s.id,
-                     filePath: s.filePath,
+                     fileUrl,
                      capturedAt: s.capturedAt.toISO(),
                   }
 
