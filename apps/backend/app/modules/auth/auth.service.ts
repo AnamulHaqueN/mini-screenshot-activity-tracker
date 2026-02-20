@@ -71,32 +71,15 @@ export class AuthService {
    }
 
    async login(ctx: HttpContext, payload: LoginType) {
-      const user = await User.query().where('email', payload.email).first()
-      const role = user?.role
+      const { email, password } = payload
+      const user = await User.verifyCredentials(email, password)
 
-      if (!user) {
-         throw new Exception('Invalid credentials', {
-            status: 401,
-            code: 'E_INVALID_CREDENTIALS',
-         })
-      }
-
-      const verified = user.isVerified
-
-      if (role === 'admin' && !verified) {
+      if (user.role === 'admin' && !user.isVerified) {
          throw new Exception('Please verify your email before logging in', {
             status: 403,
             code: 'E_ACCOUNT_NOT_VERIFIED',
          })
       }
-      const isPasswordValid = await hash.verify(user.password, payload.password)
-      if (!isPasswordValid) {
-         throw new Exception('Invalid credentials', {
-            status: 401,
-            code: 'E_INVALID_CREDENTIALS',
-         })
-      }
-
       // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
       ctx.response.plainCookie('role', user.role, {
          httpOnly: true,
