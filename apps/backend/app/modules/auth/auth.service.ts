@@ -10,10 +10,18 @@ import { Exception } from '@adonisjs/core/exceptions'
 import PasswordResetOtp from '#models/password_reset_otp'
 import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
+import mail from '@adonisjs/mail/services/main'
+
+const verificationTokens: Record<string, string> = {}
 
 export class AuthService {
    async register(data: RegisterType) {
       const plan = await Plan.findOrFail(data.planId)
+
+      const customerEmail = data.ownerEmail
+      const token = crypto.randomBytes(32).toString('hex')
+      verificationTokens[token] = customerEmail
+      const link = `http://localhost:3333/verify-email?token=${token}`
 
       const company = await Company.create({
          name: data.companyName,
@@ -27,6 +35,14 @@ export class AuthService {
          password: data.password,
          companyId: company.id,
          role: 'admin',
+         verificationToken: token,
+      })
+      console.log('customerEmail', customerEmail)
+      await mail.send((message) => {
+         message
+            .to(customerEmail)
+            .subject('verification link')
+            .html(`<p>Click this link to verify your email: <a href="${link}">Verify Email</a></p>`)
       })
 
       /**
@@ -56,6 +72,7 @@ export class AuthService {
 
    async login(ctx: HttpContext, payload: LoginType) {
       const user = await User.query().where('email', payload.email).first()
+      const role = user?.role
 
       if (!user) {
          throw new Exception('Invalid credentials', {
@@ -64,6 +81,14 @@ export class AuthService {
          })
       }
 
+      const verified = user.isVerified
+
+      if (role === 'admin' && !verified) {
+         throw new Exception('Please verify your email before logging in', {
+            status: 403,
+            code: 'E_ACCOUNT_NOT_VERIFIED',
+         })
+      }
       const isPasswordValid = await hash.verify(user.password, payload.password)
       if (!isPasswordValid) {
          throw new Exception('Invalid credentials', {

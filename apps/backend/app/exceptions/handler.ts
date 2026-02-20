@@ -67,6 +67,12 @@ export default class HttpExceptionHandler extends ExceptionHandler {
          })
       }
 
+      if (error.code === 'E_INVALID_CREDENTIALS') {
+         return ctx.response.status(403).json({
+            message: error.message,
+         })
+      }
+
       return super.handle(error, ctx)
    }
 

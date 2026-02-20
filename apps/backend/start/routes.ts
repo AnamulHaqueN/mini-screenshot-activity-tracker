@@ -16,7 +16,8 @@ import '#modules/screenshots/screenshots.route'
 import NotFoundException from '#exceptions/not_found_exception'
 import TestEmailController from '#modules/email/email.controller'
 
-router.post('/email', [TestEmailController, 'send'])
+router.post('/test-email-link', [TestEmailController, 'send'])
+router.get('/verify-email', [TestEmailController, 'verify'])
 
 router.any('*', function NotFoundRouterHandler() {
    throw new NotFoundException()
