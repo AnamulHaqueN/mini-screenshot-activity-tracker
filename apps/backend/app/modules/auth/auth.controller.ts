@@ -21,6 +21,8 @@ export default class AuthController {
    async login(ctx: HttpContext) {
       const payload = await ctx.request.validateUsing(loginValidator)
       const user = (await this.authService.login(ctx, payload)) ?? null
+
+      ctx.auth.isAuthenticated
       return ctx.response.ok({
          message: 'Login successful',
          data: { user },

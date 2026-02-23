@@ -12,15 +12,13 @@ import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
 import mail from '@adonisjs/mail/services/main'
 
-const verificationTokens: Record<string, string> = {}
-
 export class AuthService {
    async register(data: RegisterType) {
       const plan = await Plan.findOrFail(data.planId)
 
       const customerEmail = data.ownerEmail
       const token = crypto.randomBytes(32).toString('hex')
-      verificationTokens[token] = customerEmail
+
       const link = `http://localhost:3333/verify-email?token=${token}`
 
       const company = await Company.create({
@@ -80,6 +78,7 @@ export class AuthService {
             code: 'E_ACCOUNT_NOT_VERIFIED',
          })
       }
+
       // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
       ctx.response.plainCookie('role', user.role, {
          httpOnly: true,

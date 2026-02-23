@@ -15,7 +15,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    async handle(error: any, ctx: HttpContext) {
       if (error.code === 'E_INVALID_CREDENTIALS') {
          return ctx.response.status(401).json({
-            message: error.message,
+            message: 'Please enter valid credentials',
          })
       }
 
