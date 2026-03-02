@@ -231,9 +231,9 @@ curl -X POST http://localhost:3333/api/auth/forgot-password \
 
 ### Notes
 
-- Sends 6-digit OTP to email
+- Sends 6-digit OTP via email
 - OTP expires after 10 minutes
-- OTP is currently logged to console (check server logs)
+- Check your email inbox (and spam folder) for the OTP
 
 ---
 

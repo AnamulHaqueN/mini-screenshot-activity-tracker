@@ -122,8 +122,24 @@ export class AuthService {
          expiresAt: DateTime.now().plus({ minutes: 2 }),
       })
 
-      // TODO: Replace with actual email sending
-      console.log(`[OTP] Password reset OTP for ${payload.email}: ${otp}`)
+      // Send OTP via email
+      await mail.send((message) => {
+         message.to(payload.email).subject('Password Reset OTP - EzyStaff').html(`
+               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <h2 style="color: #333;">Password Reset Request</h2>
+                  <p>Hello,</p>
+                  <p>You requested to reset your password for your EzyStaff account.</p>
+                  <p>Your One-Time Password (OTP) is:</p>
+                  <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                     <h1 style="color: #2563eb; margin: 0; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+                  </div>
+                  <p><strong>This OTP will expire in 2 minutes.</strong></p>
+                  <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                  <p style="color: #666; font-size: 12px;">This is an automated message from EzyStaff. Please do not reply to this email.</p>
+               </div>
+            `)
+      })
 
       return { message: 'If an account exists with this email, you will receive an OTP shortly.' }
    }
