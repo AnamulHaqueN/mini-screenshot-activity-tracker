@@ -9,7 +9,6 @@ router
       router.get('/employees', [EmployeeController, 'index'])
       router.post('/employees', [EmployeeController, 'store'])
       router.get('/employees/search', [EmployeeController, 'search'])
-      router.get('/employees/:id', [EmployeeController, 'show'])
       router.delete('/employees/:id', [EmployeeController, 'destroy'])
    })
    .prefix('/api/admin')

@@ -16,6 +16,11 @@ import '#modules/email/email.route'
 
 import NotFoundException from '#exceptions/not_found_exception'
 
+// API Documentation routes
+const DocsController = () => import('#controllers/docs_controller')
+router.get('/api/docs', [DocsController, 'index'])
+router.get('/api/docs/spec', [DocsController, 'spec'])
+
 router.any('*', function NotFoundRouterHandler() {
    throw new NotFoundException()
 })

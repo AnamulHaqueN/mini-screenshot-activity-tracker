@@ -1,0 +1,1108 @@
+openapi: 3.0.3
+info:
+  title: EzyStaff API
+  description: |
+    EzyStaff is a comprehensive employee activity tracking and management system.
+    This API provides endpoints for authentication, employee management, screenshot tracking,
+    and subscription plan management.
+
+    ## Features
+    - Multi-tenant architecture (company-based isolation)
+    - Role-based access control (owner, admin, employee)
+    - JWT and session-based authentication
+    - Rate limiting on sensitive endpoints
+    - Email verification for owners/admins
+    - Screenshot activity tracking with time-based grouping
+
+    ## Authentication
+    The API supports two authentication methods:
+    1. JWT Bearer token (recommended for API clients)
+    2. Cookie-based session (for web applications)
+
+    After successful login, you'll receive a JWT token in the response and as a cookie.
+    Include the token in the Authorization header: `Bearer <token>`
+  version: 1.0.0
+  contact:
+    name: EzyStaff Support
+    email: support@ezystaff.com
+
+servers:
+  - url: http://localhost:3333
+    description: Development server
+  - url: https://api.ezystaff.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and account management endpoints
+  - name: Employees
+    description: Employee management endpoints (owner/admin only)
+  - name: Screenshots
+    description: Screenshot upload and retrieval endpoints
+  - name: Plans
+    description: Subscription plan management endpoints
+  - name: Email
+    description: Email verification endpoints
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: jwt_token
+      description: JWT token stored in HTTP-only cookie
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          enum: [owner, admin, employee]
+          example: "owner"
+        companyId:
+          type: integer
+          example: 1
+        isVerified:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00.000Z"
+        company:
+          $ref: '#/components/schemas/Company'
+
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Acme Corporation"
+        planId:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+
+    Plan:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Professional"
+        description:
+          type: string
+          nullable: true
+          example: "Best for growing teams"
+        price:
+          type: number
+          format: float
+          example: 29.99
+        period:
+          type: string
+          nullable: true
+          example: "monthly"
+        note:
+          type: string
+          nullable: true
+        features:
+          type: array
+          items:
+            type: string
+          nullable: true
+          example: ["Unlimited employees", "Advanced analytics", "Priority support"]
+        highlight:
+          type: boolean
+          nullable: true
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Screenshot:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        filePath:
+          type: string
+          example: "https://cdn.example.com/screenshots/abc123.png"
+        userId:
+          type: integer
+          example: 5
+        companyId:
+          type: integer
+          example: 1
+        capturedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:30:00.000Z"
+        uploadedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:31:00.000Z"
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "An error occurred"
+
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "email"
+              message:
+                type: string
+                example: "Please enter a valid email address"
+              rule:
+                type: string
+                example: "email"
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new company and owner account
+      description: |
+        Creates a new company account with an owner user. This endpoint:
+        - Creates a new company record
+        - Creates an owner user for that company
+        - Sends verification email to the owner
+        - Returns user details (no automatic login)
+
+        **Rate Limit**: No rate limiting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ownerName
+                - ownerEmail
+                - password
+                - companyName
+                - planId
+              properties:
+                ownerName:
+                  type: string
+                  minLength: 2
+                  maxLength: 255
+                  example: "John Doe"
+                ownerEmail:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 255
+                  format: password
+                  example: "password123"
+                companyName:
+                  type: string
+                  minLength: 2
+                  maxLength: 255
+                  example: "Acme Corporation"
+                planId:
+                  type: integer
+                  minimum: 1
+                  example: 1
+      responses:
+        '201':
+          description: Successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Registration successful"
+                  data:
+                    type: object
+                    properties:
+                      company:
+                        $ref: '#/components/schemas/Company'
+                      owner:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '422':
+          description: Email already exists or plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login to the system
+      description: |
+        Authenticates a user and returns a JWT token. The token is also set as an HTTP-only cookie.
+
+        **Rate Limit**: 5 requests per 5 minutes per IP address
+
+        **Note**: Owners and admins must verify their email before logging in.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  minLength: 4
+                  format: password
+                  example: "password123"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt_token=eyJhbGc...; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Invalid credentials or email not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/logout:
+    delete:
+      tags:
+        - Authentication
+      summary: Logout from the system
+      description: Clears the JWT token cookie and invalidates the session
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout successful"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user information
+      description: Returns the authenticated user's profile information including company details
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                        enum: [owner, admin, employee]
+                      companyId:
+                        type: integer
+                      company:
+                        $ref: '#/components/schemas/Company'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset OTP
+      description: |
+        Sends a 6-digit OTP code to the user's email for password reset.
+        OTP expires after 10 minutes.
+
+        **Rate Limit**: 5 requests per 10 minutes per IP address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password reset OTP sent to your email"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password with OTP
+      description: |
+        Resets the user's password using the OTP received via email.
+
+        **Rate Limit**: 5 requests per 10 minutes per IP address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+                - password
+                - password_confirmation
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                otp:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  example: "123456"
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 255
+                  format: password
+                  example: "newpassword123"
+                password_confirmation:
+                  type: string
+                  example: "newpassword123"
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password reset successful"
+        '400':
+          description: Validation error or invalid OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/employees:
+    get:
+      tags:
+        - Employees
+      summary: Get all employees in the company
+      description: |
+        Returns a paginated list of all employees in the authenticated user's company with screenshot statistics.
+
+        **Required Role**: owner or admin
+
+        **Pagination**: 10 employees per page
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+      responses:
+        '200':
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/User'
+                        - type: object
+                          properties:
+                            screenshot_count:
+                              type: integer
+                              description: Total number of screenshots uploaded
+                            last_screenshot_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                              description: Timestamp of most recent screenshot
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      perPage:
+                        type: integer
+                      currentPage:
+                        type: integer
+                      lastPage:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Employees
+      summary: Add a new employee
+      description: |
+        Creates a new employee user in the company and sends verification email.
+        Employee role is automatically set.
+
+        **Required Role**: owner or admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 255
+                  example: "Jane Smith"
+                email:
+                  type: string
+                  format: email
+                  example: "jane@example.com"
+                password:
+                  type: string
+                  minLength: 4
+                  maxLength: 255
+                  format: password
+                  example: "password123"
+      responses:
+        '201':
+          description: Employee created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee added successfully"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/employees/search:
+    get:
+      tags:
+        - Employees
+      summary: Search employees by name
+      description: |
+        Search for employees in the company by name (case-insensitive).
+        Returns employees with screenshot statistics.
+
+        **Required Role**: owner or admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          description: Search query for employee name
+          example: "john"
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/User'
+                        - type: object
+                          properties:
+                            screenshot_count:
+                              type: integer
+                            last_screenshot_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/employees/{id}:
+    delete:
+      tags:
+        - Employees
+      summary: Delete an employee
+      description: |
+        Deletes an employee from the company. Only employees in the same company can be deleted.
+
+        **Required Role**: owner or admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Employee ID
+          example: 5
+      responses:
+        '200':
+          description: Employee deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee deleted successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Employee not found or not in same company
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/employee/screenshots:
+    post:
+      tags:
+        - Screenshots
+      summary: Upload a screenshot
+      description: |
+        Uploads a screenshot taken by an employee. Screenshots are uploaded to Bunny CDN.
+
+        **Required Role**: employee (any authenticated user can upload)
+
+        **File Requirements**:
+        - Max size: 5MB
+        - Allowed formats: jpg, jpeg, png, webp
+
+        **Timezone**: capturedAt timestamps use Asia/Dhaka timezone by default
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - screenshot
+              properties:
+                screenshot:
+                  type: string
+                  format: binary
+                  description: Screenshot image file (JPG, JPEG, PNG, or WebP, max 5MB)
+                capturedAt:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 timestamp when screenshot was captured (optional, defaults to current time)
+                  example: "2024-01-15T14:30:00Z"
+      responses:
+        '201':
+          description: Screenshot uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Screenshot uploaded successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      filePath:
+                        type: string
+                      capturedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Validation error (invalid file type or size)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Upload failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/screenshots/grouped:
+    get:
+      tags:
+        - Screenshots
+      summary: Get screenshots grouped by time intervals
+      description: |
+        Returns screenshots grouped by hour and 10-minute intervals for a specific employee and date.
+        This is the main view for the activity dashboard.
+
+        **Required Role**: owner or admin
+
+        **Grouping**:
+        - Hour buckets: 0-23
+        - Minute buckets: 0, 10, 20, 30, 40, 50
+
+        **Returns**:
+        - Employee info
+        - Date
+        - Statistics (hoursActive, totalScreenshots)
+        - Grouped screenshots array with time ranges
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: employeeId
+          required: true
+          schema:
+            type: integer
+          description: Employee ID to get screenshots for
+          example: 5
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+          description: Date in YYYY-MM-DD format
+          example: "2024-01-15"
+      responses:
+        '200':
+          description: Grouped screenshots with statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  employee:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  date:
+                    type: string
+                    example: "2024-01-15"
+                  statistics:
+                    type: object
+                    properties:
+                      hoursActive:
+                        type: integer
+                        description: Number of unique hours with screenshots
+                      totalScreenshots:
+                        type: integer
+                        description: Total number of screenshots for the day
+                  groupedScreenshotsArray:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hour:
+                          type: integer
+                          description: Hour of day (0-23)
+                        minuteBucket:
+                          type: integer
+                          description: Minute bucket (0, 10, 20, 30, 40, 50)
+                        timeRange:
+                          type: string
+                          description: Human-readable time range
+                          example: "14:00 - 14:09"
+                        count:
+                          type: integer
+                          description: Number of screenshots in this bucket
+                        screenshots:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              fileUrl:
+                                type: string
+                              capturedAt:
+                                type: string
+                                format: date-time
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/plans:
+    get:
+      tags:
+        - Plans
+      summary: Get all subscription plans
+      description: Returns a list of all available subscription plans. No authentication required.
+      responses:
+        '200':
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Plan'
+
+    post:
+      tags:
+        - Plans
+      summary: Create a new subscription plan
+      description: |
+        Creates a new subscription plan.
+
+        **Note**: Currently no authentication required, but may change in future.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+              properties:
+                name:
+                  type: string
+                  example: "Enterprise"
+                description:
+                  type: string
+                  nullable: true
+                  example: "Best for large organizations"
+                price:
+                  type: number
+                  format: float
+                  example: 99.99
+                period:
+                  type: string
+                  nullable: true
+                  example: "monthly"
+                note:
+                  type: string
+                  nullable: true
+                features:
+                  type: array
+                  items:
+                    type: string
+                  nullable: true
+                  example: ["Unlimited everything", "Dedicated support", "Custom integrations"]
+                highlight:
+                  type: boolean
+                  nullable: true
+                  example: false
+      responses:
+        '201':
+          description: Plan created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Plan created successfully"
+                  data:
+                    $ref: '#/components/schemas/Plan'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/verify-email:
+    get:
+      tags:
+        - Email
+      summary: Verify email address
+      description: |
+        Verifies a user's email address using the verification token sent via email.
+        This endpoint is accessed via link in verification email.
+
+        **Note**: Owners and admins must verify email before they can log in.
+        Employees don't require email verification.
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Email verification token
+          example: "abc123def456"
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email john@example.com verified successfully!"
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
