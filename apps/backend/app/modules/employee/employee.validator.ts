@@ -2,10 +2,7 @@ import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 
 const addEmployeeSchema = vine.object({
    name: vine.string().trim().minLength(2).maxLength(255),
-   email: vine.string().trim().email().normalizeEmail().unique({
-      table: 'users',
-      column: 'email',
-   }),
+   email: vine.string().trim().email().normalizeEmail(),
    password: vine.string().minLength(4).maxLength(255),
 })
 

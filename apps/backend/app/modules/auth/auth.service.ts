@@ -1,0 +1,183 @@
+import Plan from '#models/plan'
+import User from '#models/user'
+import { ForgotPasswordType, LoginType, RegisterType, ResetPasswordType } from './auth.type.js'
+import Company from '#models/company'
+import { HttpContext } from '@adonisjs/core/http'
+import hash from '@adonisjs/core/services/hash'
+import env from '#start/env'
+import { cookieConfig } from '../../helper/jwt_cookie.js'
+import { Exception } from '@adonisjs/core/exceptions'
+import PasswordResetOtp from '#models/password_reset_otp'
+import { DateTime } from 'luxon'
+import crypto from 'node:crypto'
+import mail from '@adonisjs/mail/services/main'
+
+export class AuthService {
+   async register(data: RegisterType) {
+      const plan = await Plan.findOrFail(data.planId)
+
+      const customerEmail = data.ownerEmail
+      const token = crypto.randomBytes(32).toString('hex')
+
+      const link = `http://localhost:3333/verify-email?token=${token}`
+
+      const company = await Company.create({
+         name: data.companyName,
+         planId: plan.id,
+      })
+
+      // Create owner or admin
+      const user = await User.create({
+         name: data.ownerName,
+         email: data.ownerEmail,
+         password: data.password,
+         companyId: company.id,
+         role: 'admin',
+         verificationToken: token,
+      })
+      console.log('customerEmail', customerEmail)
+      await mail.send((message) => {
+         message
+            .to(customerEmail)
+            .subject('verification link')
+            .html(`<p>Click this link to verify your email: <a href="${link}">Verify Email</a></p>`)
+      })
+
+      /**
+       * Ignore access token creation in the time of registration
+       * Token will be generated in login time
+       */
+      //  const token = await User.accessTokens.create(owner, ['*'], { expiresIn: '7 days' })
+
+      return {
+         message: 'Company registered successfully',
+         data: {
+            company: {
+               id: company.id,
+               name: company.name,
+               planId: company.planId,
+            },
+            owner: {
+               id: user.id,
+               name: user.name,
+               email: user.email,
+               role: user.role,
+            },
+            // token: token.value!.release(),
+         },
+      }
+   }
+
+   async login(ctx: HttpContext, payload: LoginType) {
+      const { email, password } = payload
+      const user = await User.verifyCredentials(email, password)
+
+      if (user.role === 'admin' && !user.isVerified) {
+         throw new Exception('Please verify your email before logging in', {
+            status: 403,
+            code: 'E_ACCOUNT_NOT_VERIFIED',
+         })
+      }
+
+      // Pass role as cookie for the proxy.ts (next.js frontend) to manage authorization
+      ctx.response.plainCookie('role', user.role, {
+         httpOnly: true,
+         maxAge: env.get('SESSION_MAX_AGE'),
+      })
+
+      await ctx.auth.use('web').login(user)
+
+      const token = await ctx.auth.use('jwt').generate(user)
+      ctx.response.cookie('token', token.token, cookieConfig())
+
+      return {
+         id: user.id,
+         name: user.name,
+         email: user.email,
+         role: user.role,
+         companyId: user.companyId,
+      }
+   }
+
+   async forgotPassword(payload: ForgotPasswordType) {
+      const user = await User.query().where('email', payload.email).first()
+
+      if (!user) {
+         throw new Exception('Invalid credentials', {
+            status: 401,
+            code: 'E_INVALID_CREDENTIALS',
+         })
+      }
+
+      // Delete any existing OTPs for this email
+      await PasswordResetOtp.query().where('email', payload.email).delete()
+
+      // Generate 6-digit OTP
+      const otp = crypto.randomInt(100000, 999999).toString()
+
+      // Store hashed OTP with 2-minute expiry
+      await PasswordResetOtp.create({
+         email: payload.email,
+         otp: await hash.make(otp),
+         expiresAt: DateTime.now().plus({ minutes: 2 }),
+      })
+
+      // Send OTP via email
+      await mail.send((message) => {
+         message.to(payload.email).subject('Password Reset OTP - EzyStaff').html(`
+               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <h2 style="color: #333;">Password Reset Request</h2>
+                  <p>Hello,</p>
+                  <p>You requested to reset your password for your EzyStaff account.</p>
+                  <p>Your One-Time Password (OTP) is:</p>
+                  <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                     <h1 style="color: #2563eb; margin: 0; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+                  </div>
+                  <p><strong>This OTP will expire in 2 minutes.</strong></p>
+                  <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                  <p style="color: #666; font-size: 12px;">This is an automated message from EzyStaff. Please do not reply to this email.</p>
+               </div>
+            `)
+      })
+
+      return { message: 'If an account exists with this email, you will receive an OTP shortly.' }
+   }
+
+   async resetPassword(payload: ResetPasswordType) {
+      const otpRecord = await PasswordResetOtp.query()
+         .where('email', payload.email)
+         .orderBy('created_at', 'desc')
+         .first()
+
+      if (!otpRecord) {
+         throw new Exception('Invalid or expired OTP', { status: 400, code: 'INVALID_OTP' })
+      }
+
+      if (otpRecord.expiresAt < DateTime.now()) {
+         await otpRecord.delete()
+         throw new Exception('OTP has expired. Please request a new one.', {
+            status: 400,
+            code: 'OTP_EXPIRED',
+         })
+      }
+
+      const isValid = await hash.verify(otpRecord.otp, payload.otp)
+      if (!isValid) {
+         throw new Exception('Invalid OTP', { status: 400, code: 'INVALID_OTP' })
+      }
+
+      const user = await User.query().where('email', payload.email).first()
+      if (!user) {
+         throw new Exception('User not found', { status: 404, code: 'USER_NOT_FOUND' })
+      }
+
+      user.password = payload.password
+      await user.save()
+
+      // Clean up all OTPs for this email
+      await PasswordResetOtp.query().where('email', payload.email).delete()
+
+      return { message: 'Password reset successfully.' }
+   }
+}

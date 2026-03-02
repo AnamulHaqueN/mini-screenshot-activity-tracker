@@ -1,25 +1,11 @@
 "use client"
-
-import {useState} from "react"
 import {useRouter} from "next/navigation"
-import {
-   Eye,
-   Clock,
-   Shield,
-   BarChart3,
-   Users,
-   Camera,
-   ArrowRight,
-   CheckCircle2,
-   Menu,
-   X,
-} from "lucide-react"
+import {Shield, BarChart3, Camera, ArrowRight, CheckCircle2} from "lucide-react"
 import {useMe} from "@/queries/auth"
 import {APP_NAME} from "./metadata"
 
 export default function HomePage() {
    const router = useRouter()
-   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
    const {data: user} = useMe()
 
@@ -31,7 +17,7 @@ export default function HomePage() {
             router.push("/screenshots")
          }
       } else {
-         router.push("/register")
+         router.push("/pricing")
       }
    }
 
@@ -39,109 +25,9 @@ export default function HomePage() {
       router.push("/login")
    }
 
-   const handleDashboard = () => {
-      if (user?.role === "admin") {
-         router.push("/dashboard")
-      } else {
-         router.push("/screenshots")
-      }
-   }
-
    return (
       <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50">
          {/* Navigation */}
-         <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-               <div className="flex items-center justify-between h-16">
-                  {/* Logo */}
-                  <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Camera className="w-5 h-5 text-white" />
-                     </div>
-                     <span className="text-xl font-bold text-gray-900">{APP_NAME}</span>
-                  </div>
-
-                  {/* Desktop Navigation */}
-                  <div className="hidden md:flex items-center gap-4">
-                     {user ? (
-                        <>
-                           <div className="text-sm text-gray-600">
-                              Welcome,{" "}
-                              <span className="font-medium text-gray-900">
-                                 {user.name}
-                              </span>
-                           </div>
-                           <button
-                              onClick={handleDashboard}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                              Go to Dashboard
-                           </button>
-                        </>
-                     ) : (
-                        <>
-                           <button
-                              onClick={handleSignIn}
-                              className="px-4 py-2 text-gray-700 hover:text-gray-900 transition font-medium cursor-pointer">
-                              Sign In
-                           </button>
-                           <button
-                              onClick={() => router.push("/signup")}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium cursor-pointer">
-                              Get Started
-                           </button>
-                        </>
-                     )}
-                  </div>
-
-                  {/* Mobile Menu Button */}
-                  <button
-                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                     className="md:hidden p-2 text-gray-600 hover:text-gray-900">
-                     {mobileMenuOpen ? (
-                        <X className="w-6 h-6" />
-                     ) : (
-                        <Menu className="w-6 h-6" />
-                     )}
-                  </button>
-               </div>
-            </div>
-
-            {/* Mobile Menu */}
-            {mobileMenuOpen && (
-               <div className="md:hidden border-t border-gray-200 bg-white">
-                  <div className="px-4 py-4 space-y-3">
-                     {user ? (
-                        <>
-                           <div className="text-sm text-gray-600 pb-2 border-b">
-                              Welcome,{" "}
-                              <span className="font-medium text-gray-900">
-                                 {user.name}
-                              </span>
-                           </div>
-                           <button
-                              onClick={handleDashboard}
-                              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                              Go to Dashboard
-                           </button>
-                        </>
-                     ) : (
-                        <>
-                           <button
-                              onClick={handleSignIn}
-                              className="w-full px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition font-medium text-left">
-                              Sign In
-                           </button>
-                           <button
-                              onClick={() => router.push("/signup")}
-                              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                              Get Started
-                           </button>
-                        </>
-                     )}
-                  </div>
-               </div>
-            )}
-         </nav>
 
          {/* Hero Section */}
          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
@@ -155,20 +41,20 @@ export default function HomePage() {
                </h1>
                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                   Monitor team productivity with automated screenshot tracking. Track work
-                  hours, view activity timelines, and gain insights into your team's
+                  hours, view activity timelines, and gain insights into your team&apos;s
                   workflow.
                </p>
                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
                      onClick={handleGetStarted}
-                     className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                     className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 shadow-lg shadow-blue-600/30 cursor-pointer">
                      {user ? "Go to Dashboard" : "Get Started Now"}
                      <ArrowRight className="w-5 h-5" />
                   </button>
                   {!user && (
                      <button
                         onClick={handleSignIn}
-                        className="px-8 py-4 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-lg border border-gray-300">
+                        className="px-8 py-4 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-lg border border-gray-300 cursor-pointer">
                         Sign In
                      </button>
                   )}
@@ -355,7 +241,7 @@ export default function HomePage() {
                </p>
                <button
                   onClick={handleGetStarted}
-                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 mx-auto shadow-lg shadow-blue-600/30">
+                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg flex items-center gap-2 mx-auto shadow-lg shadow-blue-600/30 cursor-pointer">
                   {user ? "Go to Dashboard" : "Start Here"}
                   <ArrowRight className="w-5 h-5" />
                </button>

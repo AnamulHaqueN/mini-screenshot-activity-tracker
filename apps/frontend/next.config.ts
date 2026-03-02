@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "ezystaff.b-cdn.net",
+      },
+      {
+        protocol: "https",
         hostname: "res.cloudinary.com",
       },
     ],

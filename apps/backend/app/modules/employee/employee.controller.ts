@@ -1,111 +1,40 @@
-import User from '#models/user'
 import { EmployeeService } from '#modules/employee/employee.service'
 import { addEmployeeValidator } from '#modules/employee/employee.validator'
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 
+@inject()
 export default class EmployeeController {
-   async index({ auth, response, request }: HttpContext) {
-      const user = auth.getUserOrFail()
+   constructor(private employeeService: EmployeeService) {}
 
-      const page = Number(request.input('page', 1))
-      const limit = 10
-
-      const employees = await User.query()
-         .where('company_id', user.companyId)
-         .where('role', 'employee')
-         .orderBy('name', 'asc')
-         .paginate(page, limit)
-
-      return response.ok({
-         data: await EmployeeService.stats(employees),
-         meta: employees.getMeta(),
-      })
+   /**
+    * Get all employees
+    */
+   async index(ctx: HttpContext) {
+      const res = await this.employeeService.index(ctx)
+      return ctx.response.ok(res)
    }
 
    /**
-    * Add Employee
+    * Add employee
     */
-   async store({ auth, request, response }: HttpContext) {
-      const user = auth.getUserOrFail()
-
-      const data = await request.validateUsing(addEmployeeValidator)
-
-      // Check if email already exists in company
-      const existingEmployee = await User.query()
-         .where('email', data.email)
-         .where('company_id', user.companyId)
-         .first()
-
-      if (existingEmployee) {
-         return response.conflict({ message: 'Employee with this email already exists' })
-      }
-
-      // Create employee
-      const employee = await User.create({
-         name: data.name,
-         email: data.email,
-         password: data.password,
-         companyId: user.companyId,
-         role: 'employee',
-         // isActive: true,
-      })
-
-      return response.created({
+   async store(ctx: HttpContext) {
+      const payload = await ctx.request.validateUsing(addEmployeeValidator)
+      const res = await this.employeeService.store(ctx, payload)
+      return ctx.response.created({
          message: 'Employee added successfully',
-         data: {
-            id: employee.id,
-            name: employee.name,
-            email: employee.email,
-            role: employee.role,
-         },
+         data: res?.data,
       })
    }
 
-   async show({ auth, params, response }: HttpContext) {
-      const user = auth.getUserOrFail()
-
-      const employee = await User.query()
-         .where('id', params.id)
-         .where('company_id', user.companyId)
-         .where('role', 'employee')
-         .first()
-
-      if (!employee) {
-         return response.notFound({ message: 'Employee not found' })
-      }
-
-      return response.ok({ data: employee })
+   async destroy(ctx: HttpContext) {
+      await this.employeeService.destroy(ctx)
+      return ctx.response.ok({ message: 'Employee deleted successfully' })
    }
 
-   async destroy({ auth, params, response }: HttpContext) {
-      const user = auth.getUserOrFail()
-
-      const employee = await User.query()
-         .where('id', params.id)
-         .where('company_id', user.companyId)
-         .where('role', 'employee')
-         .first()
-
-      if (!employee) {
-         return response.notFound({ message: 'Employee not found' })
-      }
-
-      await employee.delete()
-
-      return response.ok({ message: 'Employee deleted successfully' })
-   }
-
-   async search({ auth, request, response }: HttpContext) {
-      const user = auth.getUserOrFail()
-
-      const { name } = request.qs()
-
-      const employees = await User.query()
-         .where('company_id', user.companyId)
-         .where('role', 'employee')
-         .whereILike('name', `%${name}%`)
-         .orderBy('name', 'asc')
-
-      return response.ok({ data: await EmployeeService.stats(employees) })
+   async search(ctx: HttpContext) {
+      const user = ctx.auth.getUserOrFail()
+      const employees = await this.employeeService.search(ctx, user)
+      return ctx.response.ok({ data: employees })
    }
 }

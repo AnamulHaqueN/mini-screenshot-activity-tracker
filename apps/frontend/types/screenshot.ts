@@ -1,6 +1,6 @@
 export interface Screenshot {
   id: number;
-  filePath: string;
+  fileUrl: string;
   capturedAt: string;
 }
 

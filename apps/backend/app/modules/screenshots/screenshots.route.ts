@@ -9,9 +9,7 @@ router
       // Screenshots routes (owner or admin)
       router
          .group(() => {
-            router.get('/screenshots', [ScreenshotsController, 'index'])
-            router.get('/screenshots/grouped', [ScreenshotsController, 'getGroupedScreenshots'])
-            router.get('/screenshots/grouped/all', [ScreenshotsController, 'groupedAll'])
+            router.get('/screenshots/grouped', [ScreenshotsController, 'index'])
          })
          .prefix('/admin')
          .use(middleware.role(['owner', 'admin']))

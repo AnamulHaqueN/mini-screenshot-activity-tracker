@@ -25,6 +25,10 @@ export default function Navbar() {
       router.push("/")
    }
 
+   const handlePricing = () => {
+      router.push("/pricing")
+   }
+
    return (
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,6 +41,12 @@ export default function Navbar() {
                      <Camera className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-900">{APP_NAME}</span>
+               </div>
+
+               <div
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition"
+                  onClick={handlePricing}>
+                  <span className="text-gray-900">Pricing</span>
                </div>
 
                {/* Desktop Menu */}
@@ -85,12 +95,12 @@ export default function Navbar() {
                      <div className="flex items-center gap-2">
                         <button
                            onClick={() => router.push("/login")}
-                           className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition">
+                           className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition cursor-pointer">
                            Sign In
                         </button>
                         <button
-                           onClick={() => router.push("/signup")}
-                           className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                           onClick={() => router.push("/pricing")}
+                           className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
                            Get Started
                         </button>
                      </div>
@@ -179,7 +189,7 @@ export default function Navbar() {
                         </button>
                         <button
                            onClick={() => {
-                              router.push("/signup")
+                              router.push("/pricing")
                               setMobileMenuOpen(false)
                            }}
                            className="w-full px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">

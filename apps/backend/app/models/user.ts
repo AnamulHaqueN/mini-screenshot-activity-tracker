@@ -28,6 +28,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
    declare password: string
 
    @column()
+   declare verificationToken: string
+
+   @column()
+   declare isVerified: boolean
+
+   @column()
    declare companyId: number
 
    @column()
