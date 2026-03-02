@@ -58,29 +58,6 @@ curl -X POST http://localhost:3333/api/employee/screenshots \
 - Timezone: Asia/Dhaka (if not specified)
 - capturedAt is optional (uses current time if omitted)
 
-### JavaScript Example
-
-```javascript
-// Upload screenshot
-const formData = new FormData()
-formData.append('screenshot', fileInput.files[0])
-formData.append('capturedAt', new Date().toISOString())
-
-const response = await fetch('http://localhost:3333/api/employee/screenshots', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${jwtToken}`
-  },
-  credentials: 'include',
-  body: formData
-})
-
-const result = await response.json()
-console.log('Uploaded:', result)
-```
-
----
-
 ## Get Grouped Screenshots
 
 Retrieve screenshots grouped by hour and 10-minute intervals.
@@ -162,39 +139,6 @@ Screenshots are grouped into:
 - Screenshot at 09:03 → Hour: 9, Bucket: 0 (09:00-09:09)
 - Screenshot at 09:13 → Hour: 9, Bucket: 10 (09:10-09:19)
 - Screenshot at 14:47 → Hour: 14, Bucket: 40 (14:40-14:49)
-
-### JavaScript Example
-
-```javascript
-// Get grouped screenshots for an employee
-const employeeId = 5
-const date = '2024-01-15'
-
-const response = await fetch(
-  `http://localhost:3333/api/admin/screenshots/grouped?employeeId=${employeeId}&date=${date}`,
-  {
-    headers: {
-      'Authorization': `Bearer ${jwtToken}`
-    },
-    credentials: 'include'
-  }
-)
-
-const data = await response.json()
-console.log(`Employee: ${data.employee.name}`)
-console.log(`Hours active: ${data.statistics.hoursActive}`)
-console.log(`Total screenshots: ${data.statistics.totalScreenshots}`)
-
-// Display screenshots by time
-data.groupedScreenshotsArray.forEach(group => {
-  console.log(`${group.timeRange}: ${group.count} screenshots`)
-  group.screenshots.forEach(screenshot => {
-    console.log(`  - ${screenshot.fileUrl}`)
-  })
-})
-```
-
----
 
 ## Use Cases
 

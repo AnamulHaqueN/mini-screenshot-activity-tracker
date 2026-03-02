@@ -277,53 +277,6 @@ All authenticated requests are scoped to your company:
 
 The `companyId` is automatically determined from your JWT token.
 
-## Example: Complete Auth Flow
-
-```javascript
-const BASE_URL = 'http://localhost:3333'
-
-// 1. Register
-const registerRes = await fetch(`${BASE_URL}/api/auth/register`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    ownerName: 'John Doe',
-    ownerEmail: 'john@example.com',
-    password: 'password123',
-    companyName: 'Acme Corp',
-    planId: 1
-  })
-})
-
-// 2. Verify email (click link in email)
-// Visit: /api/verify-email?token=...
-
-// 3. Login
-const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: 'john@example.com',
-    password: 'password123'
-  }),
-  credentials: 'include'
-})
-
-// 4. Access protected resources
-const meRes = await fetch(`${BASE_URL}/api/auth/me`, {
-  credentials: 'include'
-})
-
-const user = await meRes.json()
-console.log('Logged in as:', user.data.name)
-
-// 5. Logout when done
-await fetch(`${BASE_URL}/api/auth/logout`, {
-  method: 'DELETE',
-  credentials: 'include'
-})
-```
-
 ## Next Steps
 
 - Explore [Employee Management](./modules/employees.md) endpoints

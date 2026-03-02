@@ -55,7 +55,7 @@ components:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: jwt_token
+      name: token
       description: JWT token stored in HTTP-only cookie
 
   schemas:
@@ -317,7 +317,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-                example: jwt_token=eyJhbGc...; HttpOnly; Secure; SameSite=Strict
+                example: token=eyJhbGc...; HttpOnly; Secure; SameSite=Strict
           content:
             application/json:
               schema:

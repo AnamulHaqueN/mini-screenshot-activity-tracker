@@ -87,28 +87,6 @@ curl -X GET http://localhost:3333/api/plans
 - No authentication required
 - Useful for displaying pricing page
 
-### JavaScript Example
-
-```javascript
-// Fetch all plans
-const response = await fetch('http://localhost:3333/api/plans')
-const { data: plans } = await response.json()
-
-// Display plans
-plans.forEach(plan => {
-  console.log(`${plan.name}: $${plan.price}/${plan.period}`)
-  if (plan.highlight) {
-    console.log('  ⭐ Most Popular')
-  }
-  console.log(`  Features:`)
-  plan.features?.forEach(feature => {
-    console.log(`    - ${feature}`)
-  })
-})
-```
-
----
-
 ## Create Plan
 
 Create a new subscription plan.
@@ -178,33 +156,6 @@ curl -X POST http://localhost:3333/api/plans \
 - Currently no authentication required
 - Plan name must be unique
 - Price accepts decimal values
-
-### JavaScript Example
-
-```javascript
-// Create a new plan
-const response = await fetch('http://localhost:3333/api/plans', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Startup',
-    description: 'Perfect for startups',
-    price: 19.99,
-    period: 'monthly',
-    features: [
-      'Up to 25 employees',
-      'Standard analytics',
-      'Email support'
-    ],
-    highlight: false
-  })
-})
-
-const { data: plan } = await response.json()
-console.log('Created plan:', plan)
-```
-
----
 
 ## Plan Selection
 

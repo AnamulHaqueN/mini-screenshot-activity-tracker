@@ -120,7 +120,7 @@ curl -X POST http://localhost:3333/api/auth/login \
 
 **Headers:**
 ```
-Set-Cookie: jwt_token=eyJhbG...; HttpOnly; Secure; SameSite=Strict
+Set-Cookie: token=eyJhbG...; HttpOnly; Secure; SameSite=Strict
 Set-Cookie: role=owner; Path=/
 ```
 
@@ -276,53 +276,6 @@ curl -X POST http://localhost:3333/api/auth/reset-password \
 ```
 
 ---
-
-## JavaScript Example
-
-Complete authentication flow:
-
-```javascript
-const BASE_URL = 'http://localhost:3333'
-
-// 1. Register
-const registerRes = await fetch(`${BASE_URL}/api/auth/register`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    ownerName: 'John Doe',
-    ownerEmail: 'john@example.com',
-    password: 'password123',
-    companyName: 'Acme Corp',
-    planId: 1
-  })
-})
-console.log('Registered:', await registerRes.json())
-
-// 2. Login (after email verification)
-const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  credentials: 'include',
-  body: JSON.stringify({
-    email: 'john@example.com',
-    password: 'password123'
-  })
-})
-console.log('Logged in:', await loginRes.json())
-
-// 3. Get current user
-const meRes = await fetch(`${BASE_URL}/api/auth/me`, {
-  credentials: 'include'
-})
-console.log('User:', await meRes.json())
-
-// 4. Logout
-const logoutRes = await fetch(`${BASE_URL}/api/auth/logout`, {
-  method: 'DELETE',
-  credentials: 'include'
-})
-console.log('Logged out:', await logoutRes.json())
-```
 
 ## See Also
 
